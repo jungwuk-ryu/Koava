@@ -22,9 +22,10 @@ public class MyEventHandler2 extends KoaEventHandler {
             System.out.println("종목 코드 : " + realKey);
             System.out.println("데이터 : " + realData);
 
-            RealTypes.FID fid = RealTypes.주식체결.현재가;
+            String currentPrice = RealTypes.주식체결.현재가.get();
+            /*RealTypes.FID fid = RealTypes.주식체결.현재가;
             System.out.println("현재가 : " + koava.getCommRealData(realKey, fid));
-            // koava.getCommRealData(realKey, 10);으로도 가져올 수 있어요
+            // koava.getCommRealData(realKey, 10);으로도 가져올 수 있어요*/
         }
     }
 

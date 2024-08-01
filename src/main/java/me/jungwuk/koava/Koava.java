@@ -22,6 +22,7 @@ public class Koava {
     private KwLibrary kw;
     private BaseEventHandler baseEventHandler;
     private final ArrayList<KoaEventHandler> eventHandlers = new ArrayList<>();
+    private String realKey;
 
     private boolean initialized = false;
 
@@ -66,6 +67,13 @@ public class Koava {
 
     public void removeEventHandler(KoaEventHandler handler) {
         eventHandlers.remove(handler);
+    }
+
+    /**
+     * 가장 마지막에 받은 Real Data의 realKey를 반환
+     */
+    public String getLastRealKey() {
+        return realKey;
     }
 
     public void uninitialize() {
@@ -451,6 +459,7 @@ public class Koava {
         return ret;
     }
 
+    // 모든 이벤트 핸들러에게 이벤트를 뿌려주도록 합니다.
     // 더 좋은 아이디어를 이슈에 남겨주시면 정말 감사하겠습니다...
     private void initEventHandler() {
         kw.kw_SetOnEventConnect((OnEventConnectCallback) errCode -> {
@@ -476,6 +485,8 @@ public class Koava {
         });
 
         kw.kw_SetOnReceiveRealDataA((OnReceiveRealDataCallback) (realKey, realType, realData) -> {
+            this.realKey = realKey;
+
             for (KoaEventHandler handler : eventHandlers) {
                 try {
                     handler.onReceiveRealData(realKey, realType, realData);

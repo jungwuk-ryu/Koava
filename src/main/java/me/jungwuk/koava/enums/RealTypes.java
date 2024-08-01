@@ -1,5 +1,6 @@
 package me.jungwuk.koava.enums;
 
+import me.jungwuk.koava.Koava;
 import java.util.HashMap;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -371,6 +372,18 @@ public class RealTypes {
 
         public int getId() {
             return this.id;
+        }
+
+        /**
+         * <b>비동기 환경에서 사용할 수 없습니다!</b>
+         * getCommRealData(realKey, this)의 결과를 반환합니다.
+         * onReceiveRealData 콜백 안에서 이 fid에 해당하는 데이터를 추출할 수 있습니다.
+         *
+         * @return getCommRealData의 결과
+         */
+        public String get() {
+            Koava koava = Koava.getInstance();
+            return koava.getCommRealData(koava.getLastRealKey(), id);
         }
 
         @Override

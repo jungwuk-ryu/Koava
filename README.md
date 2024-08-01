@@ -130,12 +130,12 @@ lib.kw_GetLoginInfoW(WString)
 ```
 
 ### 편리한 개발
-FID는 한글로 가져올 수 있습니다.
+FID는 한글로 가져올 수 있습니다.  
 ![img](imgs/fid_list.png)
 ```java
 RealTypes.FID.현재가 // enum FID는 모든 FID를 가지고 있습니다.
 ```  
-![img](imgs/realtypes_fid_list.png)
+![img](imgs/realtypes_fid_list.png)  
 RealTypes는 KOA Studio에서 확인할 수 있는 실시간 타입들이 있습니다. 해당 타입에서 사용할 수 있는 FID를 정리해두었습니다.
 ```java
 RealTypes.주식체결.현재가 // 실시간 타입에 맞는 FID
@@ -152,6 +152,18 @@ koava.getCommRealData(realKey, fid);
 // 또는
 koava.getCommRealData(realKey, 10);
 ```
+
+### FID 값 받아오기  
+
+getCommRealData를 호출해도 되지만, 이런 쉬운 방법도 있습니다.
+```java
+RealTypes.주식체결.현재가.get();
+// 또는
+RealTypes.FID.현재가.get();
+// 또는
+RealTypes.getFidByNum(10).get();
+```
+
 ---
 조금 더 편리하게 개발하실 수 있도록 메소드에 다양한 파라미터를 넣을 수 있도록 해두었습니다.  
 ```java
