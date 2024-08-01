@@ -6,18 +6,26 @@ import com.sun.jna.platform.win32.Ole32;
 import com.sun.jna.platform.win32.Variant;
 import com.sun.jna.platform.win32.WinNT;
 import me.jungwuk.koava.callbacks.*;
-import me.jungwuk.koava.enums.ConnectStateType;
-import me.jungwuk.koava.enums.LoginInfoTag;
+import me.jungwuk.koava.constants.KoaCode;
+import me.jungwuk.koava.enums.*;
 import me.jungwuk.koava.exceptions.COMInitializationException;
 import me.jungwuk.koava.interfaces.KwLibrary;
+import me.jungwuk.koava.utils.KoavaUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unused")
 public class Koava {
     private KwLibrary kw;
+    private BaseEventHandler baseEventHandler;
+    private final ArrayList<KoaEventHandler> eventHandlers = new ArrayList<>();
+
+    private boolean initialized = false;
 
     public void init() throws COMInitializationException {
+        if (initialized) return;
+
         WinNT.HRESULT hr = Ole32.INSTANCE.CoInitializeEx(null, Ole32.COINIT_MULTITHREADED);
         if (COMUtils.FAILED(hr)) {
             throw new COMInitializationException("CoInitializeEx를 실패하였습니다.");
@@ -26,54 +34,79 @@ public class Koava {
         kw = Native.load("kw_", KwLibrary.class);
         kw.kw_Initialize(1);
         kw.kw_SetCharsetUtf8(1);
+
+        baseEventHandler = new BaseEventHandler();
+        eventHandlers.add(baseEventHandler);
+        initEventHandler();
+
+        RealTypes.getFidByNum(10); // 캐시를 생성하도록 유도합니다.
+
+        initialized = true;
     }
 
     public KwLibrary getKw() {
         return this.kw;
     }
 
+    public void addEventHandler(KoaEventHandler handler) {
+        if (eventHandlers.contains(handler)) return;
+        eventHandlers.add(handler);
+    }
+
+    public void removeEventHandler(KoaEventHandler handler) {
+        eventHandlers.remove(handler);
+    }
+
     public void uninitialize() {
         kw.kw_Uninitialize();
+        initialized = false;
+        eventHandlers.clear();
     }
 
     public void setOnEventConnect(OnEventConnectCallback handler) {
-        kw.kw_SetOnEventConnect(handler);
+        baseEventHandler.onEventConnect = handler;
     }
 
     public void setOnReceiveTrData(OnReceiveTrDataCallback handler) {
-        kw.kw_SetOnReceiveTrDataA(handler);
+        baseEventHandler.onReceiveTrData = handler;
     }
 
     public void setOnReceiveRealData(OnReceiveRealDataCallback handler) {
-        kw.kw_SetOnReceiveRealDataA(handler);
+        baseEventHandler.onReceiveRealData = handler;
     }
 
     public void setOnReceiveMsg(OnReceiveMsgCallback handler) {
-        kw.kw_SetOnReceiveMsgA(handler);
+        baseEventHandler.onReceiveMsg = handler;
     }
 
     public void setOnReceiveChejanData(OnReceiveChejanDataCallback handler) {
-        kw.kw_SetOnReceiveChejanDataA(handler);
+        baseEventHandler.onReceiveChejanData = handler;
     }
 
     public void setOnReceiveRealCondition(OnReceiveRealConditionCallback handler) {
-        kw.kw_SetOnReceiveRealConditionA(handler);
+        baseEventHandler.onReceiveRealCondition = handler;
     }
 
     public void setOnReceiveTrCondition(OnReceiveTrConditionCallback handler) {
-        kw.kw_SetOnReceiveTrConditionA(handler);
+        baseEventHandler.onReceiveTrCondition = handler;
     }
 
     public void setOnReceiveConditionVer(OnReceiveConditionVerCallback handler) {
-        kw.kw_SetOnReceiveConditionVerA(handler);
+        baseEventHandler.onReceiveConditionVer = handler;
     }
 
     public void setCharsetUtf8(boolean useUtf8) {
         kw.kw_SetCharsetUtf8(useUtf8 ? 1 : 0);
     }
 
-    public int commConnect() {
-        return kw.kw_CommConnect();
+    /**
+     * 로그인 윈도우를 실행한다.
+     * <br>
+     * 로그인이 성공하거나 실패하는 경우 OnEventConnect 이벤트가 발생
+     * @return 오류코드
+     */
+    public KoaCode commConnect() {
+        return new KoaCode(kw.kw_CommConnect());
     }
 
     public int getConnectStateRaw() {
@@ -93,32 +126,32 @@ public class Koava {
         }
     }
 
-    public String getMasterCodeName(String sTrCode) {
-        Pointer p = kw.kw_GetMasterCodeNameA(sTrCode);
+    public String getMasterCodeName(String code) {
+        Pointer p = kw.kw_GetMasterCodeNameA(code);
         return getAStringAndFree(p);
     }
 
-    public int getMasterListedStockCnt(String sTrCode) {
-        return kw.kw_GetMasterListedStockCntA(sTrCode);
+    public int getMasterListedStockCnt(String code) {
+        return kw.kw_GetMasterListedStockCntA(code);
     }
 
-    public String getMasterConstruction(String sTrCode) {
-        Pointer p = kw.kw_GetMasterConstructionA(sTrCode);
+    public String getMasterConstruction(String code) {
+        Pointer p = kw.kw_GetMasterConstructionA(code);
         return getAStringAndFree(p);
     }
 
-    public String getMasterListedStockDate(String sTrCode) {
-        Pointer p = kw.kw_GetMasterListedStockDateA(sTrCode);
+    public String getMasterListedStockDate(String code) {
+        Pointer p = kw.kw_GetMasterListedStockDateA(code);
         return getAStringAndFree(p);
     }
 
-    public String getMasterLastPrice(String sTrCode) {
-        Pointer p = kw.kw_GetMasterLastPriceA(sTrCode);
+    public String getMasterLastPrice(String code) {
+        Pointer p = kw.kw_GetMasterLastPriceA(code);
         return getAStringAndFree(p);
     }
 
-    public String getMasterStockState(String sTrCode) {
-        Pointer p = kw.kw_GetMasterStockStateA(sTrCode);
+    public String getMasterStockState(String code) {
+        Pointer p = kw.kw_GetMasterStockStateA(code);
         return getAStringAndFree(p);
     }
 
@@ -126,23 +159,23 @@ public class Koava {
         return kw.kw_GetDataCountA(strRecordName);
     }
 
-    public String getOutputValue(String strRecordName, int nRepeatIdx, int nItemIdx) {
-        Pointer p = kw.kw_GetOutputValueA(strRecordName, nRepeatIdx, nItemIdx);
+    public String getOutputValue(String recordName, int repeatIdx, int itemIdx) {
+        Pointer p = kw.kw_GetOutputValueA(recordName, repeatIdx, itemIdx);
         return getAStringAndFree(p);
     }
 
-    public String getCommData(String strTrCode, String strRecordName, int nIndex, String strItemName) {
-        Pointer p = kw.kw_GetCommDataA(strTrCode, strRecordName, nIndex, strItemName);
+    public String getCommData(String trCode, String recordName, int index, String itemName) {
+        Pointer p = kw.kw_GetCommDataA(trCode, recordName, index, itemName);
         return getAStringAndFree(p);
     }
 
-    public String getCommRealData(String sTrCode, int nFid) {
-        Pointer p = kw.kw_GetCommRealDataA(sTrCode, nFid);
+    public String getCommRealData(String code, int fid) {
+        Pointer p = kw.kw_GetCommRealDataA(code, fid);
         return getAStringAndFree(p);
     }
 
-    public String getChejanData(int nFid) {
-        Pointer p = kw.kw_GetChejanDataA(nFid);
+    public String getChejanData(int fid) {
+        Pointer p = kw.kw_GetChejanDataA(fid);
         return getAStringAndFree(p);
     }
 
@@ -151,8 +184,8 @@ public class Koava {
         return getAStringAndFree(p);
     }
 
-    public String getCodeListByMarket(String sMarket) {
-        Pointer p = kw.kw_GetCodeListByMarketA(sMarket);
+    public String getCodeListByMarket(String market) {
+        Pointer p = kw.kw_GetCodeListByMarketA(market);
         return getAStringAndFree(p);
     }
 
@@ -171,68 +204,68 @@ public class Koava {
         return getAStringAndFree(p);
     }
 
-    public String getOptionCode(String strActPrice, int nCp, String strMonth) {
-        Pointer p = kw.kw_GetOptionCodeA(strActPrice, nCp, strMonth);
+    public String getOptionCode(String actPrice, OptionType cp, String month) {
+        Pointer p = kw.kw_GetOptionCodeA(actPrice, cp.getValue(), month);
         return getAStringAndFree(p);
     }
 
-    public String getOptionCodeByMonth(String sTrCode, int nCp, String strMonth) {
-        Pointer p = kw.kw_GetOptionCodeByMonthA(sTrCode, nCp, strMonth);
+    public String getOptionCodeByMonth(String code, OptionType cp, String month) {
+        Pointer p = kw.kw_GetOptionCodeByMonthA(code, cp.getValue(), month);
         return getAStringAndFree(p);
     }
 
-    public String getOptionCodeByActPrice(String sTrCode, int nCp, int nTick) {
-        Pointer p = kw.kw_GetOptionCodeByActPriceA(sTrCode, nCp, nTick);
+    public String getOptionCodeByActPrice(String code, OptionType cp, int tick) {
+        Pointer p = kw.kw_GetOptionCodeByActPriceA(code, cp.getValue(), tick);
         return getAStringAndFree(p);
     }
 
-    public String getSFutureList(String strBaseAssetCode) {
-        Pointer p = kw.kw_GetSFutureListA(strBaseAssetCode);
+    public String getSFutureList(String baseAssetCode) {
+        Pointer p = kw.kw_GetSFutureListA(baseAssetCode);
         return getAStringAndFree(p);
     }
 
-    public String getSFutureCodeByIndex(String strBaseAssetCode, int nIndex) {
-        Pointer p = kw.kw_GetSFutureCodeByIndexA(strBaseAssetCode, nIndex);
+    public String getSFutureCodeByIndex(String baseAssetCode, int index) {
+        Pointer p = kw.kw_GetSFutureCodeByIndexA(baseAssetCode, index);
         return getAStringAndFree(p);
     }
 
-    public String getSActPriceList(String strBaseAssetGb) {
-        Pointer p = kw.kw_GetSActPriceListA(strBaseAssetGb);
+    public String getSActPriceList(String baseAssetGb) {
+        Pointer p = kw.kw_GetSActPriceListA(baseAssetGb);
         return getAStringAndFree(p);
     }
 
-    public String getSMonthList(String strBaseAssetGb) {
-        Pointer p = kw.kw_GetSMonthListA(strBaseAssetGb);
+    public String getSMonthList(String baseAssetGb) {
+        Pointer p = kw.kw_GetSMonthListA(baseAssetGb);
         return getAStringAndFree(p);
     }
 
-    public String getSOptionCode(String strBaseAssetGb, String strActPrice, int nCp, String strMonth) {
-        Pointer p = kw.kw_GetSOptionCodeA(strBaseAssetGb, strActPrice, nCp, strMonth);
+    public String getSOptionCode(String baseAssetGb, String actPrice, OptionType cp, String month) {
+        Pointer p = kw.kw_GetSOptionCodeA(baseAssetGb, actPrice, cp.getValue(), month);
         return getAStringAndFree(p);
     }
 
-    public String getSOptionCodeByMonth(String strBaseAssetGb, String sTrCode, int nCp, String strMonth) {
-        Pointer p = kw.kw_GetSOptionCodeByMonthA(strBaseAssetGb, sTrCode, nCp, strMonth);
+    public String getSOptionCodeByMonth(String strBaseAssetGb, String code, OptionType cp, String month) {
+        Pointer p = kw.kw_GetSOptionCodeByMonthA(strBaseAssetGb, code, cp.getValue(), month);
         return getAStringAndFree(p);
     }
 
-    public String getSOptionCodeByActPrice(String strBaseAssetGb, String sTrCode, int nCp, int nTick) {
-        Pointer p = kw.kw_GetSOptionCodeByActPriceA(strBaseAssetGb, sTrCode, nCp, nTick);
+    public String getSOptionCodeByActPrice(String baseAssetGb, String code, OptionType cp, int tick) {
+        Pointer p = kw.kw_GetSOptionCodeByActPriceA(baseAssetGb, code, cp.getValue(), tick);
         return getAStringAndFree(p);
     }
 
-    public String getFutureCodeByIndex(int nIndex) {
-        Pointer p = kw.kw_GetFutureCodeByIndexA(nIndex);
+    public String getFutureCodeByIndex(int index) {
+        Pointer p = kw.kw_GetFutureCodeByIndexA(index);
         return getAStringAndFree(p);
     }
 
-    public String getThemeGroupList(int nType) {
-        Pointer p = kw.kw_GetThemeGroupListA(nType);
+    public String getThemeGroupList(ThemeGroupListSortingType type) {
+        Pointer p = kw.kw_GetThemeGroupListA(type.getTypeCode());
         return getAStringAndFree(p);
     }
 
-    public String getThemeGroupCode(String strThemeCode) {
-        Pointer p = kw.kw_GetThemeGroupCodeA(strThemeCode);
+    public String getThemeGroupCode(String themeCode) {
+        Pointer p = kw.kw_GetThemeGroupCodeA(themeCode);
         return getAStringAndFree(p);
     }
 
@@ -246,8 +279,8 @@ public class Koava {
         return getAStringAndFree(p);
     }
 
-    public String getSOptionATM(String strBaseAssetGb) {
-        Pointer p = kw.kw_GetSOptionATMA(strBaseAssetGb);
+    public String getSOptionATM(String baseAssetGb) {
+        Pointer p = kw.kw_GetSOptionATMA(baseAssetGb);
         return getAStringAndFree(p);
     }
 
@@ -256,21 +289,44 @@ public class Koava {
         return getAStringAndFree(pointer);
     }
 
-    public int sendOrderCredit(String sRQName, String sScreenNo, String sAccNo, int nOrderType, String sCode, int nQty, int nPrice, String sHogaGb, String sCreditGb, String sLoanDate, String sOrgOrderNo) {
-        return kw.kw_SendOrderCreditA(sRQName, sScreenNo, sAccNo, nOrderType, sCode, nQty, nPrice, sHogaGb, sCreditGb, sLoanDate, sOrgOrderNo);
+    public KoaCode sendOrderCredit(String rqName, String screenNo, String accNo, int orderType, String code, int qty, int price, HogaType hogaGb, String creditGb, String loanDate, String orgOrderNo) {
+        return new KoaCode(kw.kw_SendOrderCreditA(rqName, screenNo, accNo, orderType, code, qty, price, hogaGb.getCode(), creditGb, loanDate, orgOrderNo));
     }
 
-    public String koaFunctions(String sFunctionName, String sParam) {
-        Pointer p = kw.kw_KOA_FunctionsA(sFunctionName, sParam);
+    public String koaFunctions(String functionName, String param) {
+        Pointer p = kw.kw_KOA_FunctionsA(functionName, param);
         return getAStringAndFree(p);
     }
 
-    public int setInfoData(String sInfoData) {
-        return kw.kw_SetInfoDataA(sInfoData);
+    public int setInfoData(String infoData) {
+        return kw.kw_SetInfoDataA(infoData);
     }
 
-    public int setRealReg(String strScreenNo, String strCodeList, String strFidList, String strOptType) {
-        return kw.kw_SetRealRegA(strScreenNo, strCodeList, strFidList, strOptType);
+    public int setRealReg(String screenNo, String codeList, String fidList, String optType) {
+        return kw.kw_SetRealRegA(screenNo, codeList, fidList, optType);
+    }
+
+    public int setRealReg(String screenNo, String codeList, String fidList, RealRegistOption option) {
+        return setRealReg(screenNo, codeList, fidList, option == RealRegistOption.KEEP ? "1" : "0");
+    }
+
+    public int setRealReg(String screenNo, String codeList, RealTypes.FID fid, RealRegistOption option) {
+        return setRealReg(screenNo, codeList, Integer.toString(fid.getFidValue()), option == RealRegistOption.KEEP ? "1" : "0");
+    }
+
+    public int setRealReg(String screenNo, String codeList, Iterable<RealTypes.FID> fidIterable, RealRegistOption option) {
+        String sList = KoavaUtils.fidIterableToStrList(fidIterable);
+        return setRealReg(screenNo, codeList, sList, option);
+    }
+
+    public int setRealReg(String screenNo, String codeList, List<RealTypes.FID> fidList, RealRegistOption option) {
+        String sList = KoavaUtils.fidListToStrList(fidList);
+        return setRealReg(screenNo, codeList, sList, option);
+    }
+
+    public int setRealReg(String screenNo, String codeList, RealTypes.FID[] fidList, RealRegistOption option) {
+        String sList = KoavaUtils.fidListToStrList(fidList);
+        return setRealReg(screenNo, codeList, sList, option);
     }
 
     public int getConditionLoad() {
@@ -282,28 +338,28 @@ public class Koava {
         return getAStringAndFree(p);
     }
 
-    public int sendCondition(String strScrNo, String strConditionName, int nIndex, int nSearch) {
-        return kw.kw_SendConditionA(strScrNo, strConditionName, nIndex, nSearch);
+    public int sendCondition(String scrNo, String conditionName, int index, int search) {
+        return kw.kw_SendConditionA(scrNo, conditionName, index, search);
     }
 
-    public void sendConditionStop(String strScrNo, String strConditionName, int nIndex) {
-        kw.kw_SendConditionStopA(strScrNo, strConditionName, nIndex);
+    public void sendConditionStop(String scrNo, String conditionName, int index) {
+        kw.kw_SendConditionStopA(scrNo, conditionName, index);
     }
 
-    public Variant.VARIANT getCommDataEx(String strTrCode, String strRecordName) {
-        return kw.kw_GetCommDataExA(strTrCode, strRecordName);
+    public Variant.VARIANT getCommDataEx(String trCode, String recordName) {
+        return kw.kw_GetCommDataExA(trCode, recordName);
     }
 
-    public void setRealRemove(String strScrNo, String strDelCode) {
-        kw.kw_SetRealRemoveA(strScrNo, strDelCode);
+    public void setRealRemove(String scrNo, String delCode) {
+        kw.kw_SetRealRemoveA(scrNo, delCode);
     }
 
-    public int getMarketType(String sTrCode) {
-        return kw.kw_GetMarketTypeA(sTrCode);
+    public int getMarketType(String trCode) {
+        return kw.kw_GetMarketTypeA(trCode);
     }
 
-    public int commRqData(String sRQName, String sTrCode, int nPrevNext, String sScreenNo) {
-        return kw.kw_CommRqDataA(sRQName, sTrCode, nPrevNext, sScreenNo);
+    public KoaCode commRqData(String rqName, String trCode, int prevNext, String screenNo) {
+        return new KoaCode(kw.kw_CommRqDataA(rqName, trCode, prevNext, screenNo));
     }
 
     public String getLoginInfo(LoginInfoTag tag) {
@@ -311,31 +367,31 @@ public class Koava {
         return getAStringAndFree(pointer);
     }
 
-    public int sendOrder(String sRQName, String sScreenNo, String sAccNo, int nOrderType, String sCode, int nQty, int nPrice, String sHogaGb, String sOrgOrderNo) {
-        return kw.kw_SendOrderA(sRQName, sScreenNo, sAccNo, nOrderType, sCode, nQty, nPrice, sHogaGb, sOrgOrderNo);
+    public KoaCode sendOrder(String rqName, String screenNo, String accNo, int orderType, String code, int qty, int price, HogaType hogaGb, String orgOrderNo) {
+        return new KoaCode(kw.kw_SendOrderA(rqName, screenNo, accNo, orderType, code, qty, price, hogaGb.getCode(), orgOrderNo));
     }
 
-    public int sendOrderFO(String sRQName, String sScreenNo, String sAccNo, String sCode, int lOrdKind, String sSlbyTp, String sOrdTp, int lQty, String sPrice, String sOrgOrdNo) {
-        return kw.kw_SendOrderFOA(sRQName, sScreenNo, sAccNo, sCode, lOrdKind, sSlbyTp, sOrdTp, lQty, sPrice, sOrgOrdNo);
+    public KoaCode sendOrderFO(String rqName, String screenNo, String accNo, String code, int ordKind, String slbyTp, String ordTp, int qty, String price, String orgOrdNo) {
+        return new KoaCode(kw.kw_SendOrderFOA(rqName, screenNo, accNo, code, ordKind, slbyTp, ordTp, qty, price, orgOrdNo));
     }
 
-    public void setInputValue(String sID, String sValue) {
-        kw.kw_SetInputValueA(sID, sValue);
+    public void setInputValue(String id, String value) {
+        kw.kw_SetInputValueA(id, value);
     }
 
-    public void disconnectRealData(String sScnNo) {
-        kw.kw_DisconnectRealDataA(sScnNo);
+    public void disconnectRealData(String scnNo) {
+        kw.kw_DisconnectRealDataA(scnNo);
     }
 
-    public int getRepeatCnt(String sTrCode, String sRecordName) {
-        return kw.kw_GetRepeatCntA(sTrCode, sRecordName);
+    public int getRepeatCnt(String code, String recordName) {
+        return kw.kw_GetRepeatCntA(code, recordName);
     }
 
-    public int commKwRqData(String sArrCode, boolean bNext, int nCodeCount, int nTypeFlag, String sRQName, String sScreenNo) {
-        return kw.kw_CommKwRqDataA(sArrCode, bNext ? 1 : 0, nCodeCount, nTypeFlag, sRQName, sScreenNo);
+    public KoaCode commKwRqData(String arrCode, boolean next, int codeCount, int typeFlag, String rqName, String screenNo) {
+        return new KoaCode(kw.kw_CommKwRqDataA(arrCode, next ? 1 : 0, codeCount, typeFlag, rqName, screenNo));
     }
 
-    public int commKwRqData(List<String> codeList, boolean bNext, int nCodeCount, int nTypeFlag, String sRQName, String sScreenNo) {
+    public KoaCode commKwRqData(List<String> codeList, boolean next, int codeCount, int typeFlag, String rqName, String screenNo) {
         StringBuilder sb = new StringBuilder();
         int listSize = codeList.size();
 
@@ -344,10 +400,10 @@ public class Koava {
             sb.append(codeList.get(i));
         }
 
-        return commKwRqData(sb.toString(), bNext, nCodeCount, nTypeFlag, sRQName, sScreenNo);
+        return commKwRqData(sb.toString(), next, codeCount, typeFlag, rqName, screenNo);
     }
 
-    public int commKwRqData(String[] codeArr, boolean bNext, int nCodeCount, int nTypeFlag, String sRQName, String sScreenNo) {
+    public KoaCode commKwRqData(String[] codeArr, boolean next, int codeCount, int typeFlag, String rqName, String screenNo) {
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < codeArr.length; i++) {
@@ -355,7 +411,7 @@ public class Koava {
             sb.append(codeArr[i]);
         }
 
-        return commKwRqData(sb.toString(), bNext, nCodeCount, nTypeFlag, sRQName, sScreenNo);
+        return commKwRqData(sb.toString(), next, codeCount, typeFlag, rqName, screenNo);
     }
 
     public void waitDisconnection() {
@@ -376,4 +432,148 @@ public class Koava {
         return ret;
     }
 
+    // 더 좋은 아이디어를 이슈에 남겨주시면 정말 감사하겠습니다...
+    private void initEventHandler() {
+        kw.kw_SetOnEventConnect((OnEventConnectCallback) errCode -> {
+            for (KoaEventHandler handler : eventHandlers) {
+                try {
+                    handler.onEventConnect(errCode);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        kw.kw_SetOnReceiveTrDataA((OnReceiveTrDataCallback) (scrNo, rqName, trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg) -> {
+            for (KoaEventHandler handler : eventHandlers) {
+                try {
+                    handler.onReceiveTrData(scrNo, rqName, trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        kw.kw_SetOnReceiveRealDataA((OnReceiveRealDataCallback) (realKey, realType, realData) -> {
+            for (KoaEventHandler handler : eventHandlers) {
+                try {
+                    handler.onReceiveRealData(realKey, realType, realData);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        kw.kw_SetOnReceiveMsgA((OnReceiveMsgCallback) (scrNo, rqName, trCode, msg) -> {
+            for (KoaEventHandler handler : eventHandlers) {
+                try {
+                    handler.onReceiveMsg(scrNo, rqName, trCode, msg);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        kw.kw_SetOnReceiveChejanDataA((OnReceiveChejanDataCallback) (gubun, itemCnt, fIdList) -> {
+            for (KoaEventHandler handler : eventHandlers) {
+                try {
+                    handler.onReceiveChejanData(gubun, itemCnt, fIdList);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        kw.kw_SetOnReceiveRealConditionA((OnReceiveRealConditionCallback) (trCode, type, conditionName, conditionIndex) -> {
+            for (KoaEventHandler handler : eventHandlers) {
+                try {
+                    handler.onReceiveRealCondition(trCode, type, conditionName, conditionIndex);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        kw.kw_SetOnReceiveTrConditionA((OnReceiveTrConditionCallback) (scrNo, codeList, conditionName, index, next) -> {
+            for (KoaEventHandler handler : eventHandlers) {
+                try {
+                    handler.onReceiveTrCondition(scrNo, codeList, conditionName, index, next);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        kw.kw_SetOnReceiveConditionVerA((OnReceiveConditionVerCallback) (ret, msg) -> {
+            for (KoaEventHandler handler : eventHandlers) {
+                try {
+                    handler.onReceiveConditionVer(ret, msg);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+}
+
+class BaseEventHandler extends KoaEventHandler {
+    OnEventConnectCallback onEventConnect;
+    OnReceiveTrDataCallback onReceiveTrData;
+    OnReceiveRealDataCallback onReceiveRealData;
+    OnReceiveMsgCallback onReceiveMsg;
+    OnReceiveChejanDataCallback onReceiveChejanData;
+    OnReceiveRealConditionCallback onReceiveRealCondition;
+    OnReceiveTrConditionCallback onReceiveTrCondition;
+    OnReceiveConditionVerCallback onReceiveConditionVer;
+
+    public void onEventConnect(int errCode) {
+        if (onEventConnect == null) return;
+        onEventConnect.invoke(errCode);
+    }
+
+    public void onReceiveChejanData(String gubun, int itemCnt, String fIdList) {
+        if (onReceiveChejanData == null) return;
+        onReceiveChejanData.invoke(gubun, itemCnt, fIdList);
+    }
+
+    public void onReceiveConditionVer(int ret, String msg) {
+        if (onReceiveConditionVer == null) return;
+        onReceiveConditionVer.invoke(ret, msg);
+    }
+
+    public void onReceiveMsg(String scrNo, String rqName, String trCode, String msg) {
+        if (onReceiveMsg == null) return;
+        onReceiveMsg.invoke(scrNo, rqName, trCode, msg);
+    }
+
+    public void onReceiveRealCondition(String trCode, String type, String conditionName, String conditionIndex) {
+        if (onReceiveRealCondition == null) return;
+        onReceiveRealCondition.invoke(trCode, type, conditionName, conditionIndex);
+    }
+
+    public void onReceiveRealData(String realKey, String realType, String realData) {
+        if (onReceiveRealData == null) return;
+        onReceiveRealData.invoke(realKey, realType, realData);
+    }
+
+    public void onReceiveTrCondition(String scrNo, String codeList, String conditionName, int index, int next) {
+        if (onReceiveTrCondition == null) return;
+        onReceiveTrCondition.invoke(scrNo, codeList, conditionName, index, next);
+    }
+
+    public void onReceiveTrData(String scrNo, String rqName, String trCode,
+                                String recordName, String prevNext, int dataLength,
+                                String errorCode, String message, String splmMsg) {
+        if (onReceiveTrData == null) return;
+        onReceiveTrData.invoke(scrNo, rqName, trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg);
+    }
 }
