@@ -51,7 +51,7 @@ public class Koava {
         eventHandlers.add(baseEventHandler);
         initEventHandler();
 
-        RealTypes.getFidByNum(10); // 캐시를 생성하도록 유도합니다.
+        RealTypes.getFid(10); // 캐시를 생성하도록 유도합니다.
 
         initialized = true;
     }

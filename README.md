@@ -142,7 +142,7 @@ RealTypes.주식체결.현재가 // 실시간 타입에 맞는 FID
 ```  
 물론, 한글 사용이 불편하신 분들은 이렇게도 FID를 가져올 수 있습니다.  
 ```java
-RealTypes.getFidByNum(20);
+RealTypes.getFid(20);
 ```  
 그리고, FID를 인자로 받는 모든 API 메소드는 int값도 허용합니다.  
 ```java
@@ -161,7 +161,7 @@ RealTypes.주식체결.현재가.get();
 // 또는
 RealTypes.FID.현재가.get();
 // 또는
-RealTypes.getFidByNum(10).get();
+RealTypes.getFid(10).get();
 ```
 
 ---
@@ -170,10 +170,10 @@ RealTypes.getFidByNum(10).get();
 k.setRealReg("1000", "005930;000660", new RealTypes.FID[] {RealTypes.FID.현재가}, RealRegistOption.CLEAR);
 // 위 코드는 아래 코드들과 동일합니다.
                 
-k.setRealReg("1000", "005930;000660", new RealTypes.FID[] {RealTypes.getFidByNum(10)}, RealRegistOption.CLEAR);
+k.setRealReg("1000", "005930;000660", new RealTypes.FID[] {RealTypes.getFid(10)}, RealRegistOption.CLEAR);
 
 k.setRealReg("1000", "005930;000660", RealTypes.FID.현재가, RealRegistOption.CLEAR);
-k.setRealReg("1000", "005930;000660", RealTypes.getFidByNum(10), RealRegistOption.CLEAR);
+k.setRealReg("1000", "005930;000660", RealTypes.getFid(10), RealRegistOption.CLEAR);
 
 k.setRealReg("1000", "005930;000660", "10", RealRegistOption.CLEAR);
 

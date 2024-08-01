@@ -27,10 +27,10 @@ public class Main {
                 k.setRealReg("1000", "005930;000660", new RealTypes.FID[] {RealTypes.FID.현재가}, RealRegistOption.CLEAR);
                 // 위 코드는 아래 코드들과 동일합니다.
                 /*
-                 k.setRealReg("1000", "005930;000660", new RealTypes.FID[] {RealTypes.getFidByNum(10)}, RealRegistOption.CLEAR);
+                 k.setRealReg("1000", "005930;000660", new RealTypes.FID[] {RealTypes.getFid(10)}, RealRegistOption.CLEAR);
 
                 k.setRealReg("1000", "005930;000660", RealTypes.FID.현재가, RealRegistOption.CLEAR);
-                k.setRealReg("1000", "005930;000660", RealTypes.getFidByNum(10), RealRegistOption.CLEAR);
+                k.setRealReg("1000", "005930;000660", RealTypes.getFid(10), RealRegistOption.CLEAR);
 
                 k.setRealReg("1000", "005930;000660", "10", RealRegistOption.CLEAR);
 

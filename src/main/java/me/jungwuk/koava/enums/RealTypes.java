@@ -9,7 +9,7 @@ public class RealTypes {
 
     private RealTypes() { }
 
-    public static FID getFidByNum(int id) {
+    public static FID getFid(int id) {
         if (_cache == null) {
             _generateCache();
         }
@@ -18,7 +18,7 @@ public class RealTypes {
     }
 
     private static void _generateCache() {
-        _cache = new HashMap<Integer, FID>();
+        _cache = new HashMap<>();
         for (FID fid : FID.values()) {
             _cache.put(fid.getId(), fid);
         }
