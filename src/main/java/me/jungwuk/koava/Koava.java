@@ -186,7 +186,7 @@ public class Koava {
     }
 
     public String getCommRealData(String code, RealTypes.FID fid) {
-        return getCommRealData(code, fid.getFidValue());
+        return getCommRealData(code, fid.getId());
     }
 
     public String getChejanData(int fid) {
@@ -195,7 +195,7 @@ public class Koava {
     }
 
     public String getChejanData(RealTypes.FID fid) {
-        return getChejanData(fid.getFidValue());
+        return getChejanData(fid.getId());
     }
 
     public String getAPIModulePath() {
@@ -330,7 +330,7 @@ public class Koava {
     }
 
     public int setRealReg(String screenNo, String codeList, RealTypes.FID fid, RealRegistOption option) {
-        return setRealReg(screenNo, codeList, Integer.toString(fid.getFidValue()), option == RealRegistOption.KEEP ? "1" : "0");
+        return setRealReg(screenNo, codeList, Integer.toString(fid.getId()), option == RealRegistOption.KEEP ? "1" : "0");
     }
 
     public int setRealReg(String screenNo, String codeList, Iterable<RealTypes.FID> fidIterable, RealRegistOption option) {

@@ -18,7 +18,7 @@ public class KoavaUtils {
                 sb.append(";");
             }
 
-            sb.append(fid.getFidValue());
+            sb.append(fid.getId());
         }
 
         return sb.toString();

@@ -19,7 +19,7 @@ public class RealTypes {
     private static void _generateCache() {
         _cache = new HashMap<Integer, FID>();
         for (FID fid : FID.values()) {
-            _cache.put(fid.fidValue, fid);
+            _cache.put(fid.getId(), fid);
         }
     }
 
@@ -363,19 +363,19 @@ public class RealTypes {
         순매수금액(212),
         순매수금액증감(213);
 
-        final int fidValue;
+        final int id;
 
-        FID(int fidValue) {
-            this.fidValue = fidValue;
+        FID(int id) {
+            this.id = id;
         }
 
-        public int getFidValue() {
-            return this.fidValue;
+        public int getId() {
+            return this.id;
         }
 
         @Override
         public String toString() {
-            return "FID ( " + getFidValue() + " )";
+            return "FID ( " + getId() + " )";
         }
     }
 
