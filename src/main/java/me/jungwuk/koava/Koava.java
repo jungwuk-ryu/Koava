@@ -174,9 +174,17 @@ public class Koava {
         return getAStringAndFree(p);
     }
 
+    public String getCommRealData(String code, RealTypes.FID fid) {
+        return getCommRealData(code, fid.getFidValue());
+    }
+
     public String getChejanData(int fid) {
         Pointer p = kw.kw_GetChejanDataA(fid);
         return getAStringAndFree(p);
+    }
+
+    public String getChejanData(RealTypes.FID fid) {
+        return getChejanData(fid.getFidValue());
     }
 
     public String getAPIModulePath() {
