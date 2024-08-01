@@ -11,6 +11,11 @@ smok95님의 [kw_](https://github.com/smok95/kw_) 프로젝트의 dll 을 기반
 ## 주의 사항
 **아직 충분한 테스트가 이루어지지 않았습니다. 꼭 모의 투자 모드로 로그인 하셔서 충분한 테스트를 진행해보시기를 바랍니다.**  
 
+## 키움증권 Open api 사용법
+- https://github.com/me2nuk/stockOpenAPI?tab=readme-ov-file
+- [kw_ 리포지토리](https://github.com/smok95/kw_)
+- https://download.kiwoom.com/web/openapi/kiwoom_openapi_plus_devguide_ver_1.5.pdf
+
 ## 사용 방법 (예시 코드)
 
 ### 기본 준비
