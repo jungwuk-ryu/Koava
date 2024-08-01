@@ -31,7 +31,7 @@ smok95님의 [kw_](https://github.com/smok95/kw_) 프로젝트의 dll 을 기반
 
 ### 코드 작성, Koava 사용 준비
 ```java
-Koava k = new Koava();
+Koava k = Koava.getInstance();
 k.init(); // 초기화
 ```
 
@@ -121,7 +121,7 @@ Koava 초기화 후, ``getKw()`` 메소드 호출로 KwLibrary 인스턴스를 �
 
 단, 포인터를 직접 free해주셔야 합니다. 그렇지 않으면 메모리 누수가 발생할 수 있습니다.  
 ```java
-Koava k = new Koava();
+Koava k = Koava.getInstance();
 // 초기화
 k.init();
 

@@ -10,7 +10,7 @@ import me.jungwuk.koava.example.handlers.MyEventHandler2;
 
 public class Main {
     public static void main(String[] args) {
-        Koava k = new Koava();
+        Koava k = Koava.getInstance();
         // 초기화
         k.init();
 

@@ -17,11 +17,22 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public class Koava {
+    private static Koava instance;
+
     private KwLibrary kw;
     private BaseEventHandler baseEventHandler;
     private final ArrayList<KoaEventHandler> eventHandlers = new ArrayList<>();
 
     private boolean initialized = false;
+
+    private Koava() { }
+
+    public static Koava getInstance() {
+        if (instance == null) {
+            instance = new Koava();
+        }
+        return instance;
+    }
 
     public void init() throws COMInitializationException {
         if (initialized) return;
