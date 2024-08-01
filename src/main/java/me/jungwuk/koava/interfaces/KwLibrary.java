@@ -14,7 +14,7 @@ public interface KwLibrary extends Library {
 
     void kw_Uninitialize();
 
-    void kw_SetOnEventConnect(Callbacks.OnEventConnectCallback handler);
+    void kw_SetOnEventConnect(Callback handler);
 
     void kw_SetOnReceiveTrDataW(Callback handler);
 
@@ -58,7 +58,7 @@ public interface KwLibrary extends Library {
 
     Pointer kw_GetMasterCodeNameW(WString sTrCode);
 
-    String kw_GetMasterCodeNameA(String sTrCode);
+    Pointer kw_GetMasterCodeNameA(String sTrCode);
 
     int kw_GetMasterListedStockCntW(WString sTrCode);
 
@@ -66,19 +66,19 @@ public interface KwLibrary extends Library {
 
     Pointer kw_GetMasterConstructionW(WString sTrCode);
 
-    String kw_GetMasterConstructionA(String sTrCode);
+    Pointer kw_GetMasterConstructionA(String sTrCode);
 
     Pointer kw_GetMasterListedStockDateW(WString sTrCode);
 
-    String kw_GetMasterListedStockDateA(String sTrCode);
+    Pointer kw_GetMasterListedStockDateA(String sTrCode);
 
     Pointer kw_GetMasterLastPriceW(WString sTrCode);
 
-    String kw_GetMasterLastPriceA(String sTrCode);
+    Pointer kw_GetMasterLastPriceA(String sTrCode);
 
     Pointer kw_GetMasterStockStateW(WString sTrCode);
 
-    String kw_GetMasterStockStateA(String sTrCode);
+    Pointer kw_GetMasterStockStateA(String sTrCode);
 
     int kw_GetDataCountW(WString strRecordName);
 
@@ -86,107 +86,107 @@ public interface KwLibrary extends Library {
 
     Pointer kw_GetOutputValueW(WString strRecordName, int nRepeatIdx, int nItemIdx);
 
-    String kw_GetOutputValueA(String strRecordName, int nRepeatIdx, int nItemIdx);
+    Pointer kw_GetOutputValueA(String strRecordName, int nRepeatIdx, int nItemIdx);
 
     Pointer kw_GetCommDataW(WString strTrCode, WString strRecordName, int nIndex, WString strItemName);
 
-    String kw_GetCommDataA(String strTrCode, String strRecordName, int nIndex, String strItemName);
+    Pointer kw_GetCommDataA(String strTrCode, String strRecordName, int nIndex, String strItemName);
 
     Pointer kw_GetCommRealDataW(WString sTrCode, int nFid);
 
-    String kw_GetCommRealDataA(String sTrCode, int nFid);
+    Pointer kw_GetCommRealDataA(String sTrCode, int nFid);
 
     Pointer kw_GetChejanDataW(int nFid);
 
-    String kw_GetChejanDataA(int nFid);
+    Pointer kw_GetChejanDataA(int nFid);
 
     Pointer kw_GetAPIModulePathW();
 
-    String kw_GetAPIModulePathA();
+    Pointer kw_GetAPIModulePathA();
 
     Pointer kw_GetCodeListByMarketW(WString sMarket);
 
-    String kw_GetCodeListByMarketA(String sMarket);
+    Pointer kw_GetCodeListByMarketA(String sMarket);
 
     Pointer kw_GetFutureListW();
 
-    String kw_GetFutureListA();
+    Pointer kw_GetFutureListA();
 
     Pointer kw_GetActPriceListW();
 
-    String kw_GetActPriceListA();
+    Pointer kw_GetActPriceListA();
 
     Pointer kw_GetMonthListW();
 
-    String kw_GetMonthListA();
+    Pointer kw_GetMonthListA();
 
     Pointer kw_GetOptionCodeW(WString strActPrice, int nCp, WString strMonth);
 
-    String kw_GetOptionCodeA(String strActPrice, int nCp, String strMonth);
+    Pointer kw_GetOptionCodeA(String strActPrice, int nCp, String strMonth);
 
     Pointer kw_GetOptionCodeByMonthW(WString sTrCode, int nCp, WString strMonth);
 
-    String kw_GetOptionCodeByMonthA(String sTrCode, int nCp, String strMonth);
+    Pointer kw_GetOptionCodeByMonthA(String sTrCode, int nCp, String strMonth);
 
     Pointer kw_GetOptionCodeByActPriceW(WString sTrCode, int nCp, int nTick);
 
-    String kw_GetOptionCodeByActPriceA(String sTrCode, int nCp, int nTick);
+    Pointer kw_GetOptionCodeByActPriceA(String sTrCode, int nCp, int nTick);
 
     Pointer kw_GetSFutureListW(WString strBaseAssetCode);
 
-    String kw_GetSFutureListA(String strBaseAssetCode);
+    Pointer kw_GetSFutureListA(String strBaseAssetCode);
 
     Pointer kw_GetSFutureCodeByIndexW(WString strBaseAssetCode, int nIndex);
 
-    String kw_GetSFutureCodeByIndexA(String strBaseAssetCode, int nIndex);
+    Pointer kw_GetSFutureCodeByIndexA(String strBaseAssetCode, int nIndex);
 
     Pointer kw_GetSActPriceListW(WString strBaseAssetGb);
 
-    String kw_GetSActPriceListA(String strBaseAssetGb);
+    Pointer kw_GetSActPriceListA(String strBaseAssetGb);
 
     Pointer kw_GetSMonthListW(WString strBaseAssetGb);
 
-    String kw_GetSMonthListA(String strBaseAssetGb);
+    Pointer kw_GetSMonthListA(String strBaseAssetGb);
 
     Pointer kw_GetSOptionCodeW(WString strBaseAssetGb, WString strActPrice, int nCp, WString strMonth);
 
-    String kw_GetSOptionCodeA(String strBaseAssetGb, String strActPrice, int nCp, String strMonth);
+    Pointer kw_GetSOptionCodeA(String strBaseAssetGb, String strActPrice, int nCp, String strMonth);
 
     Pointer kw_GetSOptionCodeByMonthW(WString strBaseAssetGb, WString sTrCode, int nCp, WString strMonth);
 
-    String kw_GetSOptionCodeByMonthA(String strBaseAssetGb, String sTrCode, int nCp, String strMonth);
+    Pointer kw_GetSOptionCodeByMonthA(String strBaseAssetGb, String sTrCode, int nCp, String strMonth);
 
     Pointer kw_GetSOptionCodeByActPriceW(WString strBaseAssetGb, WString sTrCode, int nCp, int nTick);
 
-    String kw_GetSOptionCodeByActPriceA(String strBaseAssetGb, String sTrCode, int nCp, int nTick);
+    Pointer kw_GetSOptionCodeByActPriceA(String strBaseAssetGb, String sTrCode, int nCp, int nTick);
 
     Pointer kw_GetFutureCodeByIndexW(int nIndex);
 
-    String kw_GetFutureCodeByIndexA(int nIndex);
+    Pointer kw_GetFutureCodeByIndexA(int nIndex);
 
     Pointer kw_GetThemeGroupListW(int nType);
 
-    String kw_GetThemeGroupListA(int nType);
+    Pointer kw_GetThemeGroupListA(int nType);
 
     Pointer kw_GetThemeGroupCodeW(WString strThemeCode);
 
-    String kw_GetThemeGroupCodeA(String strThemeCode);
+    Pointer kw_GetThemeGroupCodeA(String strThemeCode);
 
     Pointer kw_GetSFOBasisAssetListW();
 
-    String kw_GetSFOBasisAssetListA();
+    Pointer kw_GetSFOBasisAssetListA();
 
     Pointer kw_GetOptionATMW();
 
-    String kw_GetOptionATMA();
+    Pointer kw_GetOptionATMA();
 
     Pointer kw_GetSOptionATMW(WString strBaseAssetGb);
 
-    String kw_GetSOptionATMA(String strBaseAssetGb);
+    Pointer kw_GetSOptionATMA(String strBaseAssetGb);
 
     Pointer kw_GetBranchCodeNameW();
 
-    String kw_GetBranchCodeNameA();
+    Pointer kw_GetBranchCodeNameA();
 
     int kw_SendOrderCreditW(WString sRQName, WString sScreenNo, WString sAccNo, int nOrderType, WString sCode, int nQty, int nPrice, WString sHogaGb, WString sCreditGb, WString sLoanDate, WString sOrgOrderNo);
 
@@ -194,7 +194,7 @@ public interface KwLibrary extends Library {
 
     Pointer kw_KOA_FunctionsW(WString sFunctionName, WString sParam);
 
-    String kw_KOA_FunctionsA(String sFunctionName, String sParam);
+    Pointer kw_KOA_FunctionsA(String sFunctionName, String sParam);
 
     int kw_SetInfoDataW(WString sInfoData);
 
@@ -208,7 +208,7 @@ public interface KwLibrary extends Library {
 
     Pointer kw_GetConditionNameListW();
 
-    String kw_GetConditionNameListA();
+    Pointer kw_GetConditionNameListA();
 
     int kw_SendConditionW(WString strScrNo, WString strConditionName, int nIndex, int nSearch);
 
@@ -236,7 +236,7 @@ public interface KwLibrary extends Library {
 
     Pointer kw_GetLoginInfoW(WString sTag);
 
-    String kw_GetLoginInfoA(String sTag);
+    Pointer kw_GetLoginInfoA(String sTag);
 
     int kw_SendOrderW(WString sRQName, WString sScreenNo, WString sAccNo, int nOrderType, WString sCode, int nQty, int nPrice, WString sHogaGb, WString sOrgOrderNo);
 

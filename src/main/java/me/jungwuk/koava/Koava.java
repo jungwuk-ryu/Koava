@@ -5,9 +5,13 @@ import com.sun.jna.platform.win32.COM.COMUtils;
 import com.sun.jna.platform.win32.Ole32;
 import com.sun.jna.platform.win32.Variant;
 import com.sun.jna.platform.win32.WinNT;
+import me.jungwuk.koava.callbacks.*;
+import me.jungwuk.koava.enums.ConnectStateType;
+import me.jungwuk.koava.enums.LoginInfoTag;
 import me.jungwuk.koava.exceptions.COMInitializationException;
-import me.jungwuk.koava.exceptions.UnimplementedException;
 import me.jungwuk.koava.interfaces.KwLibrary;
+
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class Koava {
@@ -21,518 +25,355 @@ public class Koava {
 
         kw = Native.load("kw_", KwLibrary.class);
         kw.kw_Initialize(1);
+        kw.kw_SetCharsetUtf8(1);
     }
 
-    void uninitialize() {
+    public KwLibrary getKw() {
+        return this.kw;
+    }
+
+    public void uninitialize() {
         kw.kw_Uninitialize();
     }
 
-    void setOnEventConnect(Callback handler) {
-        throw new UnimplementedException();
+    public void setOnEventConnect(OnEventConnectCallback handler) {
+        kw.kw_SetOnEventConnect(handler);
     }
 
-    void setOnReceiveTrDataW(Callback handler) {
-        throw new UnimplementedException();
+    public void setOnReceiveTrData(OnReceiveTrDataCallback handler) {
+        kw.kw_SetOnReceiveTrDataA(handler);
     }
 
-    void setOnReceiveTrDataA(Callback handler) {
-        throw new UnimplementedException();
+    public void setOnReceiveRealData(OnReceiveRealDataCallback handler) {
+        kw.kw_SetOnReceiveRealDataA(handler);
     }
 
-    void setOnReceiveRealDataW(Callback handler) {
-        throw new UnimplementedException();
+    public void setOnReceiveMsg(OnReceiveMsgCallback handler) {
+        kw.kw_SetOnReceiveMsgA(handler);
     }
 
-    void setOnReceiveRealDataA(Callback handler) {
-        throw new UnimplementedException();
+    public void setOnReceiveChejanData(OnReceiveChejanDataCallback handler) {
+        kw.kw_SetOnReceiveChejanDataA(handler);
     }
 
-    void setOnReceiveMsgW(Callback handler) {
-        throw new UnimplementedException();
+    public void setOnReceiveRealCondition(OnReceiveRealConditionCallback handler) {
+        kw.kw_SetOnReceiveRealConditionA(handler);
     }
 
-    void setOnReceiveMsgA(Callback handler) {
-        throw new UnimplementedException();
+    public void setOnReceiveTrCondition(OnReceiveTrConditionCallback handler) {
+        kw.kw_SetOnReceiveTrConditionA(handler);
     }
 
-    void setOnReceiveChejanDataW(Callback handler) {
-        throw new UnimplementedException();
+    public void setOnReceiveConditionVer(OnReceiveConditionVerCallback handler) {
+        kw.kw_SetOnReceiveConditionVerA(handler);
     }
 
-    void setOnReceiveChejanDataA(Callback handler) {
-        throw new UnimplementedException();
+    public void setCharsetUtf8(boolean useUtf8) {
+        kw.kw_SetCharsetUtf8(useUtf8 ? 1 : 0);
     }
 
-    void setOnReceiveRealConditionW(Callback handler) {
-        throw new UnimplementedException();
-    }
-
-    void setOnReceiveRealConditionA(Callback handler) {
-        throw new UnimplementedException();
-    }
-
-    void setOnReceiveTrConditionW(Callback handler) {
-        throw new UnimplementedException();
-    }
-
-    void setOnReceiveTrConditionA(Callback handler) {
-        throw new UnimplementedException();
-    }
-
-    void setOnReceiveConditionVerW(Callback handler) {
-        throw new UnimplementedException();
-    }
-
-    void setOnReceiveConditionVerA(Callback handler) {
-        throw new UnimplementedException();
-    }
-
-    void free(Pointer p) {
-        throw new UnimplementedException();
-    }
-
-    void freeStringW(Pointer p) {
-        throw new UnimplementedException();
-    }
-
-    void freeStringA(Pointer p) {
-        throw new UnimplementedException();
-    }
-
-    void setCharsetUtf8(int useUtf8) {
-        throw new UnimplementedException();
-    }
-
-    int commConnect() {
+    public int commConnect() {
         return kw.kw_CommConnect();
     }
 
-    int getConnectState() {
-        throw new UnimplementedException();
+    public int getConnectStateRaw() {
+        return kw.kw_GetConnectState();
     }
 
-    Pointer getMasterCodeNameW(WString sTrCode) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getMasterCodeNameA(String sTrCode) {
-        throw new UnimplementedException();
-    }
-
-    int getMasterListedStockCntW(WString sTrCode) {
-        throw new UnimplementedException();
-    }
-
-    int getMasterListedStockCntA(String sTrCode) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getMasterConstructionW(WString sTrCode) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getMasterConstructionA(String sTrCode) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getMasterListedStockDateW(WString sTrCode) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getMasterListedStockDateA(String sTrCode) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getMasterLastPriceW(WString sTrCode) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getMasterLastPriceA(String sTrCode) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getMasterStockStateW(WString sTrCode) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getMasterStockStateA(String sTrCode) {
-        throw new UnimplementedException();
-    }
-
-    int getDataCountW(WString strRecordName) {
-        throw new UnimplementedException();
-    }
-
-    int getDataCountA(String strRecordName) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getOutputValueW(WString strRecordName, int nRepeatIdx, int nItemIdx) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getOutputValueA(String strRecordName, int nRepeatIdx, int nItemIdx) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getCommDataW(WString strTrCode, WString strRecordName, int nIndex, WString strItemName) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getCommDataA(String strTrCode, String strRecordName, int nIndex, String strItemName) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getCommRealDataW(WString sTrCode, int nFid) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getCommRealDataA(String sTrCode, int nFid) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getChejanDataW(int nFid) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getChejanDataA(int nFid) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getAPIModulePathW() {
-        throw new UnimplementedException();
-    }
-
-    Pointer getAPIModulePathA() {
-        throw new UnimplementedException();
-    }
-
-    Pointer getCodeListByMarketW(WString sMarket) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getCodeListByMarketA(String sMarket) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getFutureListW() {
-        throw new UnimplementedException();
-    }
-
-    Pointer getFutureListA() {
-        throw new UnimplementedException();
-    }
-
-    Pointer getActPriceListW() {
-        throw new UnimplementedException();
-    }
-
-    Pointer getActPriceListA() {
-        throw new UnimplementedException();
-    }
-
-    Pointer getMonthListW() {
-        throw new UnimplementedException();
-    }
-
-    Pointer getMonthListA() {
-        throw new UnimplementedException();
-    }
-
-    Pointer getOptionCodeW(WString strActPrice, int nCp, WString strMonth) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getOptionCodeA(String strActPrice, int nCp, String strMonth) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getOptionCodeByMonthW(WString sTrCode, int nCp, WString strMonth) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getOptionCodeByMonthA(String sTrCode, int nCp, String strMonth) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getOptionCodeByActPriceW(WString sTrCode, int nCp, int nTick) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getOptionCodeByActPriceA(String sTrCode, int nCp, int nTick) {
-        throw new UnimplementedException();
-    }
-
-    Pointer getSFutureListW(WString strBaseAssetCode) {
-        throw new UnimplementedException();
-    }
+    public ConnectStateType getConnectState() {
+        int state = getConnectStateRaw();
 
-    Pointer getSFutureListA(String strBaseAssetCode) {
-        throw new UnimplementedException();
+        switch (state) {
+            case 0:
+                return ConnectStateType.DISCONNECTED;
+            case 1:
+                return ConnectStateType.CONNECTED;
+            default:
+                return ConnectStateType.UNKNOWN;
+        }
     }
 
-    Pointer getSFutureCodeByIndexW(WString strBaseAssetCode, int nIndex) {
-        throw new UnimplementedException();
+    public String getMasterCodeName(String sTrCode) {
+        Pointer p = kw.kw_GetMasterCodeNameA(sTrCode);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSFutureCodeByIndexA(String strBaseAssetCode, int nIndex) {
-        throw new UnimplementedException();
+    public int getMasterListedStockCnt(String sTrCode) {
+        return kw.kw_GetMasterListedStockCntA(sTrCode);
     }
 
-    Pointer getSActPriceListW(WString strBaseAssetGb) {
-        throw new UnimplementedException();
+    public String getMasterConstruction(String sTrCode) {
+        Pointer p = kw.kw_GetMasterConstructionA(sTrCode);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSActPriceListA(String strBaseAssetGb) {
-        throw new UnimplementedException();
+    public String getMasterListedStockDate(String sTrCode) {
+        Pointer p = kw.kw_GetMasterListedStockDateA(sTrCode);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSMonthListW(WString strBaseAssetGb) {
-        throw new UnimplementedException();
+    public String getMasterLastPrice(String sTrCode) {
+        Pointer p = kw.kw_GetMasterLastPriceA(sTrCode);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSMonthListA(String strBaseAssetGb) {
-        throw new UnimplementedException();
+    public String getMasterStockState(String sTrCode) {
+        Pointer p = kw.kw_GetMasterStockStateA(sTrCode);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSOptionCodeW(WString strBaseAssetGb, WString strActPrice, int nCp, WString strMonth) {
-        throw new UnimplementedException();
+    public int getDataCount(String strRecordName) {
+        return kw.kw_GetDataCountA(strRecordName);
     }
 
-    Pointer getSOptionCodeA(String strBaseAssetGb, String strActPrice, int nCp, String strMonth) {
-        throw new UnimplementedException();
+    public String getOutputValue(String strRecordName, int nRepeatIdx, int nItemIdx) {
+        Pointer p = kw.kw_GetOutputValueA(strRecordName, nRepeatIdx, nItemIdx);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSOptionCodeByMonthW(WString strBaseAssetGb, WString sTrCode, int nCp, WString strMonth) {
-        throw new UnimplementedException();
+    public String getCommData(String strTrCode, String strRecordName, int nIndex, String strItemName) {
+        Pointer p = kw.kw_GetCommDataA(strTrCode, strRecordName, nIndex, strItemName);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSOptionCodeByMonthA(String strBaseAssetGb, String sTrCode, int nCp, String strMonth) {
-        throw new UnimplementedException();
+    public String getCommRealData(String sTrCode, int nFid) {
+        Pointer p = kw.kw_GetCommRealDataA(sTrCode, nFid);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSOptionCodeByActPriceW(WString strBaseAssetGb, WString sTrCode, int nCp, int nTick) {
-        throw new UnimplementedException();
+    public String getChejanData(int nFid) {
+        Pointer p = kw.kw_GetChejanDataA(nFid);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSOptionCodeByActPriceA(String strBaseAssetGb, String sTrCode, int nCp, int nTick) {
-        throw new UnimplementedException();
+    public String getAPIModulePath() {
+        Pointer p = kw.kw_GetAPIModulePathA();
+        return getAStringAndFree(p);
     }
 
-    Pointer getFutureCodeByIndexW(int nIndex) {
-        throw new UnimplementedException();
+    public String getCodeListByMarket(String sMarket) {
+        Pointer p = kw.kw_GetCodeListByMarketA(sMarket);
+        return getAStringAndFree(p);
     }
 
-    Pointer getFutureCodeByIndexA(int nIndex) {
-        throw new UnimplementedException();
+    public String getFutureList() {
+        Pointer p = kw.kw_GetFutureListA();
+        return getAStringAndFree(p);
     }
 
-    Pointer getThemeGroupListW(int nType) {
-        throw new UnimplementedException();
+    public String getActPriceList() {
+        Pointer p = kw.kw_GetActPriceListA();
+        return getAStringAndFree(p);
     }
 
-    Pointer getThemeGroupListA(int nType) {
-        throw new UnimplementedException();
+    public String getMonthList() {
+        Pointer p = kw.kw_GetMonthListA();
+        return getAStringAndFree(p);
     }
 
-    Pointer getThemeGroupCodeW(WString strThemeCode) {
-        throw new UnimplementedException();
+    public String getOptionCode(String strActPrice, int nCp, String strMonth) {
+        Pointer p = kw.kw_GetOptionCodeA(strActPrice, nCp, strMonth);
+        return getAStringAndFree(p);
     }
 
-    Pointer getThemeGroupCodeA(String strThemeCode) {
-        throw new UnimplementedException();
+    public String getOptionCodeByMonth(String sTrCode, int nCp, String strMonth) {
+        Pointer p = kw.kw_GetOptionCodeByMonthA(sTrCode, nCp, strMonth);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSFOBasisAssetListW() {
-        throw new UnimplementedException();
+    public String getOptionCodeByActPrice(String sTrCode, int nCp, int nTick) {
+        Pointer p = kw.kw_GetOptionCodeByActPriceA(sTrCode, nCp, nTick);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSFOBasisAssetListA() {
-        throw new UnimplementedException();
+    public String getSFutureList(String strBaseAssetCode) {
+        Pointer p = kw.kw_GetSFutureListA(strBaseAssetCode);
+        return getAStringAndFree(p);
     }
 
-    Pointer getOptionATMW() {
-        throw new UnimplementedException();
+    public String getSFutureCodeByIndex(String strBaseAssetCode, int nIndex) {
+        Pointer p = kw.kw_GetSFutureCodeByIndexA(strBaseAssetCode, nIndex);
+        return getAStringAndFree(p);
     }
 
-    Pointer getOptionATMA() {
-        throw new UnimplementedException();
+    public String getSActPriceList(String strBaseAssetGb) {
+        Pointer p = kw.kw_GetSActPriceListA(strBaseAssetGb);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSOptionATMW(WString strBaseAssetGb) {
-        throw new UnimplementedException();
+    public String getSMonthList(String strBaseAssetGb) {
+        Pointer p = kw.kw_GetSMonthListA(strBaseAssetGb);
+        return getAStringAndFree(p);
     }
 
-    Pointer getSOptionATMA(String strBaseAssetGb) {
-        throw new UnimplementedException();
+    public String getSOptionCode(String strBaseAssetGb, String strActPrice, int nCp, String strMonth) {
+        Pointer p = kw.kw_GetSOptionCodeA(strBaseAssetGb, strActPrice, nCp, strMonth);
+        return getAStringAndFree(p);
     }
 
-    Pointer getBranchCodeNameW() {
-        throw new UnimplementedException();
+    public String getSOptionCodeByMonth(String strBaseAssetGb, String sTrCode, int nCp, String strMonth) {
+        Pointer p = kw.kw_GetSOptionCodeByMonthA(strBaseAssetGb, sTrCode, nCp, strMonth);
+        return getAStringAndFree(p);
     }
 
-    Pointer getBranchCodeNameA() {
-        throw new UnimplementedException();
+    public String getSOptionCodeByActPrice(String strBaseAssetGb, String sTrCode, int nCp, int nTick) {
+        Pointer p = kw.kw_GetSOptionCodeByActPriceA(strBaseAssetGb, sTrCode, nCp, nTick);
+        return getAStringAndFree(p);
     }
 
-    int sendOrderCreditW(WString sRQName, WString sScreenNo, WString sAccNo, int nOrderType, WString sCode, int nQty, int nPrice, WString sHogaGb, WString sCreditGb, WString sLoanDate, WString sOrgOrderNo) {
-        throw new UnimplementedException();
+    public String getFutureCodeByIndex(int nIndex) {
+        Pointer p = kw.kw_GetFutureCodeByIndexA(nIndex);
+        return getAStringAndFree(p);
     }
 
-    int sendOrderCreditA(String sRQName, String sScreenNo, String sAccNo, int nOrderType, String sCode, int nQty, int nPrice, String sHogaGb, String sCreditGb, String sLoanDate, String sOrgOrderNo) {
-        throw new UnimplementedException();
+    public String getThemeGroupList(int nType) {
+        Pointer p = kw.kw_GetThemeGroupListA(nType);
+        return getAStringAndFree(p);
     }
 
-    Pointer KOA_FunctionsW(WString sFunctionName, WString sParam) {
-        throw new UnimplementedException();
+    public String getThemeGroupCode(String strThemeCode) {
+        Pointer p = kw.kw_GetThemeGroupCodeA(strThemeCode);
+        return getAStringAndFree(p);
     }
 
-    Pointer KOA_FunctionsA(String sFunctionName, String sParam) {
-        throw new UnimplementedException();
+    public String getSFOBasisAssetList() {
+        Pointer p = kw.kw_GetSFOBasisAssetListA();
+        return getAStringAndFree(p);
     }
 
-    int setInfoDataW(WString sInfoData) {
-        throw new UnimplementedException();
+    public String getOptionATM() {
+        Pointer p = kw.kw_GetOptionATMA();
+        return getAStringAndFree(p);
     }
 
-    int setInfoDataA(String sInfoData) {
-        throw new UnimplementedException();
+    public String getSOptionATM(String strBaseAssetGb) {
+        Pointer p = kw.kw_GetSOptionATMA(strBaseAssetGb);
+        return getAStringAndFree(p);
     }
 
-    int setRealRegW(WString strScreenNo, WString strCodeList, WString strFidList, WString strOptType) {
-        throw new UnimplementedException();
+    public String getBranchCodeName() {
+        Pointer pointer = kw.kw_GetBranchCodeNameA();
+        return getAStringAndFree(pointer);
     }
 
-    int setRealRegA(String strScreenNo, String strCodeList, String strFidList, String strOptType) {
-        throw new UnimplementedException();
+    public int sendOrderCredit(String sRQName, String sScreenNo, String sAccNo, int nOrderType, String sCode, int nQty, int nPrice, String sHogaGb, String sCreditGb, String sLoanDate, String sOrgOrderNo) {
+        return kw.kw_SendOrderCreditA(sRQName, sScreenNo, sAccNo, nOrderType, sCode, nQty, nPrice, sHogaGb, sCreditGb, sLoanDate, sOrgOrderNo);
     }
 
-    int getConditionLoad() {
-        throw new UnimplementedException();
+    public String koaFunctions(String sFunctionName, String sParam) {
+        Pointer p = kw.kw_KOA_FunctionsA(sFunctionName, sParam);
+        return getAStringAndFree(p);
     }
 
-    Pointer getConditionNameListW() {
-        throw new UnimplementedException();
+    public int setInfoData(String sInfoData) {
+        return kw.kw_SetInfoDataA(sInfoData);
     }
 
-    Pointer getConditionNameListA() {
-        throw new UnimplementedException();
+    public int setRealReg(String strScreenNo, String strCodeList, String strFidList, String strOptType) {
+        return kw.kw_SetRealRegA(strScreenNo, strCodeList, strFidList, strOptType);
     }
 
-    int sendConditionW(WString strScrNo, WString strConditionName, int nIndex, int nSearch) {
-        throw new UnimplementedException();
+    public int getConditionLoad() {
+        return kw.kw_GetConditionLoad();
     }
 
-    int sendConditionA(String strScrNo, String strConditionName, int nIndex, int nSearch) {
-        throw new UnimplementedException();
+    public String getConditionNameList() {
+        Pointer p = kw.kw_GetConditionNameListA();
+        return getAStringAndFree(p);
     }
 
-    void sendConditionStopW(WString strScrNo, WString strConditionName, int nIndex) {
-        throw new UnimplementedException();
+    public int sendCondition(String strScrNo, String strConditionName, int nIndex, int nSearch) {
+        return kw.kw_SendConditionA(strScrNo, strConditionName, nIndex, nSearch);
     }
 
-    void sendConditionStopA(String strScrNo, String strConditionName, int nIndex) {
-        throw new UnimplementedException();
+    public void sendConditionStop(String strScrNo, String strConditionName, int nIndex) {
+        kw.kw_SendConditionStopA(strScrNo, strConditionName, nIndex);
     }
 
-    Variant.VARIANT getCommDataExW(WString strTrCode, WString strRecordName) {
-        throw new UnimplementedException();
+    public Variant.VARIANT getCommDataEx(String strTrCode, String strRecordName) {
+        return kw.kw_GetCommDataExA(strTrCode, strRecordName);
     }
 
-    Variant.VARIANT getCommDataExA(String strTrCode, String strRecordName) {
-        throw new UnimplementedException();
+    public void setRealRemove(String strScrNo, String strDelCode) {
+        kw.kw_SetRealRemoveA(strScrNo, strDelCode);
     }
 
-    void setRealRemoveW(WString strScrNo, WString strDelCode) {
-        throw new UnimplementedException();
+    public int getMarketType(String sTrCode) {
+        return kw.kw_GetMarketTypeA(sTrCode);
     }
 
-    void setRealRemoveA(String strScrNo, String strDelCode) {
-        throw new UnimplementedException();
+    public int commRqData(String sRQName, String sTrCode, int nPrevNext, String sScreenNo) {
+        return kw.kw_CommRqDataA(sRQName, sTrCode, nPrevNext, sScreenNo);
     }
 
-    int getMarketTypeW(WString sTrCode) {
-        throw new UnimplementedException();
+    public String getLoginInfo(LoginInfoTag tag) {
+        Pointer pointer = kw.kw_GetLoginInfoA(tag.name());
+        return getAStringAndFree(pointer);
     }
 
-    int getMarketTypeA(String sTrCode) {
-        throw new UnimplementedException();
+    public int sendOrder(String sRQName, String sScreenNo, String sAccNo, int nOrderType, String sCode, int nQty, int nPrice, String sHogaGb, String sOrgOrderNo) {
+        return kw.kw_SendOrderA(sRQName, sScreenNo, sAccNo, nOrderType, sCode, nQty, nPrice, sHogaGb, sOrgOrderNo);
     }
 
-    int commRqDataW(WString sRQName, WString sTrCode, int nPrevNext, WString sScreenNo) {
-        throw new UnimplementedException();
+    public int sendOrderFO(String sRQName, String sScreenNo, String sAccNo, String sCode, int lOrdKind, String sSlbyTp, String sOrdTp, int lQty, String sPrice, String sOrgOrdNo) {
+        return kw.kw_SendOrderFOA(sRQName, sScreenNo, sAccNo, sCode, lOrdKind, sSlbyTp, sOrdTp, lQty, sPrice, sOrgOrdNo);
     }
 
-    int commRqDataA(String sRQName, String sTrCode, int nPrevNext, String sScreenNo) {
-        throw new UnimplementedException();
+    public void setInputValue(String sID, String sValue) {
+        kw.kw_SetInputValueA(sID, sValue);
     }
 
-    Pointer getLoginInfoW(WString sTag) {
-        throw new UnimplementedException();
+    public void disconnectRealData(String sScnNo) {
+        kw.kw_DisconnectRealDataA(sScnNo);
     }
 
-    Pointer getLoginInfoA(String sTag) {
-        throw new UnimplementedException();
+    public int getRepeatCnt(String sTrCode, String sRecordName) {
+        return kw.kw_GetRepeatCntA(sTrCode, sRecordName);
     }
 
-    int sendOrderW(WString sRQName, WString sScreenNo, WString sAccNo, int nOrderType, WString sCode, int nQty, int nPrice, WString sHogaGb, WString sOrgOrderNo) {
-        throw new UnimplementedException();
+    public int commKwRqData(String sArrCode, boolean bNext, int nCodeCount, int nTypeFlag, String sRQName, String sScreenNo) {
+        return kw.kw_CommKwRqDataA(sArrCode, bNext ? 1 : 0, nCodeCount, nTypeFlag, sRQName, sScreenNo);
     }
 
-    int sendOrderA(String sRQName, String sScreenNo, String sAccNo, int nOrderType, String sCode, int nQty, int nPrice, String sHogaGb, String sOrgOrderNo) {
-        throw new UnimplementedException();
-    }
-
-    int sendOrderFOW(WString sRQName, WString sScreenNo, WString sAccNo, WString sCode, int lOrdKind, WString sSlbyTp, WString sOrdTp, int lQty, WString sPrice, WString sOrgOrdNo) {
-        throw new UnimplementedException();
-    }
-
-    int sendOrderFOA(String sRQName, String sScreenNo, String sAccNo, String sCode, int lOrdKind, String sSlbyTp, String sOrdTp, int lQty, String sPrice, String sOrgOrdNo) {
-        throw new UnimplementedException();
-    }
-
-    void setInputValueW(WString sID, WString sValue) {
-        throw new UnimplementedException();
-    }
-
-    void setInputValueA(String sID, String sValue) {
-        throw new UnimplementedException();
-    }
+    public int commKwRqData(List<String> codeList, boolean bNext, int nCodeCount, int nTypeFlag, String sRQName, String sScreenNo) {
+        StringBuilder sb = new StringBuilder();
+        int listSize = codeList.size();
 
-    void disconnectRealDataW(WString sScnNo) {
-        throw new UnimplementedException();
-    }
+        for (int i = 0; i < listSize; i++) {
+            if (i != 0) sb.append(";");
+            sb.append(codeList.get(i));
+        }
 
-    void disconnectRealDataA(String sScnNo) {
-        throw new UnimplementedException();
+        return commKwRqData(sb.toString(), bNext, nCodeCount, nTypeFlag, sRQName, sScreenNo);
     }
 
-    int getRepeatCntW(WString sTrCode, WString sRecordName) {
-        throw new UnimplementedException();
-    }
+    public int commKwRqData(String[] codeArr, boolean bNext, int nCodeCount, int nTypeFlag, String sRQName, String sScreenNo) {
+        StringBuilder sb = new StringBuilder();
 
-    int getRepeatCntA(String sTrCode, String sRecordName) {
-        throw new UnimplementedException();
-    }
+        for (int i = 0; i < codeArr.length; i++) {
+            if (i != 0) sb.append(";");
+            sb.append(codeArr[i]);
+        }
 
-    int commKwRqDataW(WString sArrCode, int bNext, int nCodeCount, int nTypeFlag, WString sRQName, WString sScreenNo) {
-        throw new UnimplementedException();
+        return commKwRqData(sb.toString(), bNext, nCodeCount, nTypeFlag, sRQName, sScreenNo);
     }
 
-    int commKwRqDataA(String sArrCode, int bNext, int nCodeCount, int nTypeFlag, String sRQName, String sScreenNo) {
-        throw new UnimplementedException();
+    public void waitDisconnection() {
+        kw.kw_Wait();
     }
 
-    void waitThread() {
-        throw new UnimplementedException();
+    public void sleep(int msec) {
+        kw.kw_Sleep(msec);
     }
 
-    void sleep(int msec) {
-        throw new UnimplementedException();
+    public void disconnect() {
+        kw.kw_Disconnect();
     }
 
-    void disconnect() {
-        throw new UnimplementedException();
+    private String getAStringAndFree(Pointer p) {
+        String ret = p.getString(0);
+        kw.kw_FreeStringA(p);
+        return ret;
     }
 
 }
