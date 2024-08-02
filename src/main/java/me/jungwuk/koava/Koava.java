@@ -9,11 +9,16 @@ import me.jungwuk.koava.callbacks.*;
 import me.jungwuk.koava.constants.KoaCode;
 import me.jungwuk.koava.enums.*;
 import me.jungwuk.koava.exceptions.COMInitializationException;
+import me.jungwuk.koava.exceptions.IllegalKoaResult;
 import me.jungwuk.koava.interfaces.KwLibrary;
+import me.jungwuk.koava.models.StockInfo;
+import me.jungwuk.koava.models.Upjong;
 import me.jungwuk.koava.utils.KoavaUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.StringTokenizer;
 
 @SuppressWarnings("unused")
 public class Koava {
@@ -85,6 +90,235 @@ public class Koava {
     public String getLastRealKey() {
         return realKey;
     }
+
+    /**
+     * 계좌비밀번호 입력창 출력
+     */
+    public void showAccountWindow() {
+        koaFunctions("ShowAccountWindow", "");
+    }
+
+    /**
+     * 접속서버 구분을 알려준다
+     *
+     * @return 1 : 모의투자 접속, 나머지 : 실서버 접속
+     */
+    public String getServerGubun() {
+        return koaFunctions("GetServerGubun", "");
+    }
+
+    /**
+     * 모의 투자 접속 여부를 확인합니다
+     * @return 모의 투자 접속시 true
+     */
+    public boolean isMockTradingServer() {
+        return "1".equals(getServerGubun());
+    }
+
+    /**
+     * 실서버에 접속한 상태인지 확인합니다
+     * @return 실서버 접속시 true
+     */
+    public boolean isRealServer() {
+        return !isMockTradingServer();
+    }
+
+    /**
+     * 주식종목 시장구분, 종목분류등 정보제공
+     *
+     * @param code
+     * @return 호출결과는 입력한 종목에 대한 대분류, 중분류, 업종구분값을 구분자로 연결한 문자열입니다. <br>구분자는 '|'와 ';'입니다.<br>예시: {@code 시장구분0|거래소;시장구분1|중형주;업종구분|금융업;}
+     */
+    public String getMasterStockInfoRaw(String code) {
+        return koaFunctions("GetMasterStockInfo", code);
+    }
+
+    /**
+     * 주식종목 시장구분, 종목분류등 정보제공
+     *
+     * @param code
+     * @return 성공시 : StockInfo<br>실패시 : null
+     */
+    public StockInfo getMasterStockInfo(String code) {
+        String data = getMasterStockInfoRaw(code);
+        if (data == null || data.isEmpty()) return null;
+
+        ArrayList<StockInfo> list = new ArrayList<>();
+        StringTokenizer st = new StringTokenizer(data, ";");
+
+        String sijangGubun0 = "";
+        String sijangGubun1 = "";
+        String upjongGubun = "";
+
+        while (st.hasMoreTokens()) {
+            String token = st.nextToken();
+            if (token.isEmpty()) continue;
+
+            StringTokenizer st2 = new StringTokenizer(token, "|");
+            String key = st2.nextToken();
+            String value = st2.nextToken();
+
+            if (key.equals("시장구분0")) sijangGubun0 = value;
+            if (key.equals("시장구분1")) sijangGubun1 = value;
+            if (key.equals("업종구분")) upjongGubun = value;
+        }
+
+        return new StockInfo(sijangGubun0, sijangGubun1, upjongGubun);
+    }
+
+
+
+    /**
+     *  조검검색 종목코드와 현재가 수신(실시간 조건검색은 사용할수 없음)<br>
+     *  조건검색결과에 종목코드와 그 종목의 현재가를 함께 수신하는 방법이며 실시간 조건검색에서는 사용할 수 없고 오직 조건검색에만 사용할수 있습니다.<br>
+     *  현재가 포함으로 설정시 OnReceiveTrCondition()이벤트에 "종목코드1^현재가1;종목코드2^현재가2;...종목코드n^현재가n"형식으로 전달됨<br>
+     *  <b>실시간 조건검색에서는 사용할 수 없고 수신데이터에 현재가가 포함되므로 데이터처리방법을 달리해야 합니다</b>
+     * @param addPrice true : 현재가 수신<br>false : 수신 안 함
+     */
+    public void setConditionSearchFlag(boolean addPrice) {
+        koaFunctions("SetConditionSearchFlag", addPrice ? "AddPrice" : "DelPrice");
+    }
+
+    /**
+     * 해당 시장의 업종 리스트를 받아옵니다
+     * @param sijangGubun 0:코스피, 1: 코스닥, 2:KOSPI200, 4:KOSPI100(KOSPI50), 7:KRX100
+     * @return "시장구분값,업종코드,업종명|시장구분값,업종코드,업종명|...|시장구분값,업종코드,업종명|" 형식입니다.<br>
+     *           즉 하나의 업종코드는 입력한 시장구분값과 업종코드 그리고 그 업종명이 쉼표(,)로 구분되며 각 업종코드는 '|'로 구분됩니다.
+     */
+    public String getUpjongCodeRaw(String sijangGubun) {
+        return koaFunctions("GetUpjongCode", sijangGubun);
+    }
+
+    /**
+     * 해당 시장의 업종 리스트를 받아옵니다
+     * @param sijangGubun 0:코스피, 1: 코스닥, 2:KOSPI200, 4:KOSPI100(KOSPI50), 7:KRX100
+     * @return 업종 리스트
+     */
+    public List<Upjong> getUpjongCode(String sijangGubun) throws IllegalKoaResult {
+        String data = getUpjongCodeRaw(sijangGubun);
+
+        if (data == null || data.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        ArrayList<Upjong> upjongs = new ArrayList<>();
+        StringTokenizer st1 = new StringTokenizer(data, "|");
+        while (st1.hasMoreTokens()) {
+            String token = st1.nextToken().trim();
+
+            if (token.isEmpty()) {
+                continue;
+            }
+
+            StringTokenizer st2 = new StringTokenizer(token, ",");
+            if (st2.countTokens() >= 3) {
+                String sijang = st2.nextToken();
+                String upjongCode = st2.nextToken();
+                String upjongName = st2.nextToken();
+
+                while (st2.hasMoreTokens()) {
+                    upjongName += "," + st2.nextToken();
+                }
+                upjongs.add(new Upjong(sijang, upjongCode, upjongName));
+            } else {
+                throw new IllegalKoaResult("Koa가 잘못된 응답을 반환했습니다. UpjongCode의 응답은 v1,v2,v3|v1,v2,v3|...와 같은 형식이어야 하지만, 응답 내용은 그렇지 않습니다. 받은 데이터 : \"" + data + "\"");
+            }
+        }
+
+        return upjongs;
+    }
+
+    /**
+     * 해당 시장의 업종 리스트를 받아옵니다
+     * @param sijangType 시장 타입
+     * @return 업종 리스트
+     */
+    public List<Upjong> getUpjongCode(SijangType sijangType) {
+        return getUpjongCode(sijangType.getGubunCode());
+    }
+
+    /**
+     * 모든 시장의 업종들을 받아옵니다
+     * @return 업종 리스트
+     */
+    public List<Upjong> getAllUpjongCodes() {
+        ArrayList<Upjong> upjongs = new ArrayList<>();
+
+        for (SijangType sijang : SijangType.values()) {
+            if (sijang == SijangType.UNKNOWN) continue;
+            upjongs.addAll(getUpjongCode(sijang));
+        }
+
+        return upjongs;
+    }
+
+    /**
+     * 업종 코드로 업종 이름을 받아옵니다.
+     * @param upjongCode 업종 코드
+     * @return 업종명
+     */
+    public String getUpjongNameByCode(String upjongCode) {
+        return koaFunctions("GetUpjongNameByCode", upjongCode);
+    }
+
+    /**
+     * 특정 종목이 투자유의종목인지 아래와 같은 방법으로 확인할 수 있습니다.
+     * @param code 종목 코드
+     * @return 투자유의 종목인 경우 "1" 값이 리턴, 그렇지 않은 경우 "0" 값 리턴. (ETF가 아닌 종목을 입력시 "0" 값 리턴.)
+     */
+    public String isOrderWarningETFRaw(String code) {
+        return koaFunctions("IsOrderWarningETF", code);
+    }
+
+    /**
+     * 특정 종목이 투자유의종목인지 아래와 같은 방법으로 확인할 수 있습니다.
+     * @param code 종목 코드
+     * @return {@code true} : 투자 유의<br> {@code false} : 유의 상태가 아니거나 ETF가 아님
+     */
+    public boolean isOrderWarningETF(String code) {
+        return "1".equals(isOrderWarningETFRaw(code));
+    }
+
+    /**
+     * 특정 종목이 투자유의종목인지 아래와 같은 방법으로 확인할 수 있습니다.
+     * @param code 종목 코드
+     * @return "0":해당없음, "2":정리매매, "3":단기과열, "4":투자위험, "5":투자경고
+     */
+    public String isOrderWarningStockRaw(String code) {
+        return koaFunctions("IsOrderWarningStock", code);
+    }
+
+    /**
+     * 특정 종목이 투자유의종목인지 아래와 같은 방법으로 확인할 수 있습니다.
+     * @param code 종목 코드
+     * @return 어떤 상태의 Warning 인지 구분할 수 있는 StockWarningType
+     */
+    public StockWarningType isOrderWarningStock(String code) {
+        return StockWarningType.valueOf(isOrderWarningStockRaw(code));
+    }
+
+    /**
+     * 상장주식수를 <b>long 타입</b>으로 구합니다
+     * @param code 종목 코드
+     * @return 상장주식수, <b>조회 실패시 -1</b>
+     */
+    public long getMasterListedStockCntEx(String code) {
+        long ret;
+        String cnt = koaFunctions("GetMasterListedStockCntEx", code);
+
+        if (cnt == null || cnt.trim().isEmpty()) {
+            ret = -1;
+        } else {
+            ret = Long.parseLong(cnt);
+        }
+
+        return ret;
+    }
+
+    public String getStockMarketKind(String code) {
+        return koaFunctions("GetStockMarketKind", code);
+    }
+
 
     public void uninitialize() {
         kw.kw_Uninitialize();
