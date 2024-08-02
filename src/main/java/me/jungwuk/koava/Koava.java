@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
-@SuppressWarnings("unused")
+@SuppressWarnings("FieldCanBeLocal")
 public class Koava {
     private static Koava instance;
 
@@ -126,7 +126,7 @@ public class Koava {
     /**
      * 주식종목 시장구분, 종목분류등 정보제공
      *
-     * @param code
+     * @param code 종목 코드
      * @return 호출결과는 입력한 종목에 대한 대분류, 중분류, 업종구분값을 구분자로 연결한 문자열입니다. <br>구분자는 '|'와 ';'입니다.<br>예시: {@code 시장구분0|거래소;시장구분1|중형주;업종구분|금융업;}
      */
     public String getMasterStockInfoRaw(String code) {
@@ -136,7 +136,7 @@ public class Koava {
     /**
      * 주식종목 시장구분, 종목분류등 정보제공
      *
-     * @param code
+     * @param code 종목 코드
      * @return 성공시 : StockInfo<br>실패시 : null
      */
     public StockInfo getMasterStockInfo(String code) {
@@ -394,6 +394,13 @@ public class Koava {
         return getAStringAndFree(p);
     }
 
+    /**
+     * 상장주식수를 구합니다. 일부 종목에서 overflow가 발생할 수 있습니다.
+     * <br>long 타입으로 받아오는 메소드를 사용할 것을 권장합니다.
+     * @see Koava#getMasterListedStockCntEx(String code)
+     * @param code 종목 코드
+     * @return 상장주식수, <b>조회 실패시 -1</b>
+     */
     public int getMasterListedStockCnt(String code) {
         return kw.kw_GetMasterListedStockCntA(code);
     }
