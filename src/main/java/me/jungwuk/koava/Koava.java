@@ -24,6 +24,16 @@ public class Koava {
     private final ArrayList<KoaEventHandler> eventHandlers = new ArrayList<>();
     private String realKey;
 
+    // 콜백이 GC에 의해 죽지 않도록 하는 장치
+    private OnEventConnectCallback onEventConnect;
+    private OnReceiveTrDataCallback onReceiveTrData;
+    private OnReceiveRealDataCallback onReceiveRealData;
+    private OnReceiveMsgCallback onReceiveMsg;
+    private OnReceiveChejanDataCallback onReceiveChejanData;
+    private OnReceiveRealConditionCallback onReceiveRealCondition;
+    private OnReceiveTrConditionCallback onReceiveTrCondition;
+    private OnReceiveConditionVerCallback onReceiveConditionVer;
+
     private boolean initialized = false;
 
     private Koava() { }
@@ -462,7 +472,7 @@ public class Koava {
     // 모든 이벤트 핸들러에게 이벤트를 뿌려주도록 합니다.
     // 더 좋은 아이디어를 이슈에 남겨주시면 정말 감사하겠습니다...
     private void initEventHandler() {
-        kw.kw_SetOnEventConnect((OnEventConnectCallback) errCode -> {
+        onEventConnect = (OnEventConnectCallback) errCode -> {
             for (KoaEventHandler handler : eventHandlers) {
                 try {
                     handler.onEventConnect(errCode);
@@ -471,9 +481,9 @@ public class Koava {
                     e.printStackTrace();
                 }
             }
-        });
+        };
 
-        kw.kw_SetOnReceiveTrDataA((OnReceiveTrDataCallback) (scrNo, rqName, trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg) -> {
+        onReceiveTrData = (OnReceiveTrDataCallback) (scrNo, rqName, trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg) -> {
             for (KoaEventHandler handler : eventHandlers) {
                 try {
                     handler.onReceiveTrData(scrNo, rqName, trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg);
@@ -482,9 +492,9 @@ public class Koava {
                     e.printStackTrace();
                 }
             }
-        });
+        };
 
-        kw.kw_SetOnReceiveRealDataA((OnReceiveRealDataCallback) (realKey, realType, realData) -> {
+        onReceiveRealData = (OnReceiveRealDataCallback) (realKey, realType, realData) -> {
             this.realKey = realKey;
 
             for (KoaEventHandler handler : eventHandlers) {
@@ -495,9 +505,9 @@ public class Koava {
                     e.printStackTrace();
                 }
             }
-        });
+        };
 
-        kw.kw_SetOnReceiveMsgA((OnReceiveMsgCallback) (scrNo, rqName, trCode, msg) -> {
+        onReceiveMsg = (OnReceiveMsgCallback) (scrNo, rqName, trCode, msg) -> {
             for (KoaEventHandler handler : eventHandlers) {
                 try {
                     handler.onReceiveMsg(scrNo, rqName, trCode, msg);
@@ -506,9 +516,9 @@ public class Koava {
                     e.printStackTrace();
                 }
             }
-        });
+        };
 
-        kw.kw_SetOnReceiveChejanDataA((OnReceiveChejanDataCallback) (gubun, itemCnt, fIdList) -> {
+        onReceiveChejanData = (OnReceiveChejanDataCallback) (gubun, itemCnt, fIdList) -> {
             for (KoaEventHandler handler : eventHandlers) {
                 try {
                     handler.onReceiveChejanData(gubun, itemCnt, fIdList);
@@ -517,9 +527,9 @@ public class Koava {
                     e.printStackTrace();
                 }
             }
-        });
+        };
 
-        kw.kw_SetOnReceiveRealConditionA((OnReceiveRealConditionCallback) (trCode, type, conditionName, conditionIndex) -> {
+        onReceiveRealCondition = (OnReceiveRealConditionCallback) (trCode, type, conditionName, conditionIndex) -> {
             for (KoaEventHandler handler : eventHandlers) {
                 try {
                     handler.onReceiveRealCondition(trCode, type, conditionName, conditionIndex);
@@ -528,9 +538,9 @@ public class Koava {
                     e.printStackTrace();
                 }
             }
-        });
+        };
 
-        kw.kw_SetOnReceiveTrConditionA((OnReceiveTrConditionCallback) (scrNo, codeList, conditionName, index, next) -> {
+        onReceiveTrCondition = (OnReceiveTrConditionCallback) (scrNo, codeList, conditionName, index, next) -> {
             for (KoaEventHandler handler : eventHandlers) {
                 try {
                     handler.onReceiveTrCondition(scrNo, codeList, conditionName, index, next);
@@ -539,9 +549,9 @@ public class Koava {
                     e.printStackTrace();
                 }
             }
-        });
+        };
 
-        kw.kw_SetOnReceiveConditionVerA((OnReceiveConditionVerCallback) (ret, msg) -> {
+        onReceiveConditionVer = (OnReceiveConditionVerCallback) (ret, msg) -> {
             for (KoaEventHandler handler : eventHandlers) {
                 try {
                     handler.onReceiveConditionVer(ret, msg);
@@ -550,7 +560,16 @@ public class Koava {
                     e.printStackTrace();
                 }
             }
-        });
+        };
+
+        kw.kw_SetOnEventConnect(onEventConnect);
+        kw.kw_SetOnReceiveTrDataA(onReceiveTrData);
+        kw.kw_SetOnReceiveRealDataA(onReceiveRealData);
+        kw.kw_SetOnReceiveMsgA(onReceiveMsg);
+        kw.kw_SetOnReceiveChejanDataA(onReceiveChejanData);
+        kw.kw_SetOnReceiveRealConditionA(onReceiveRealCondition);
+        kw.kw_SetOnReceiveTrConditionA(onReceiveTrCondition);
+        kw.kw_SetOnReceiveConditionVerA(onReceiveConditionVer);
     }
 
 }
