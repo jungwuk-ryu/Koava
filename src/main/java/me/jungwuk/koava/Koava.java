@@ -315,8 +315,31 @@ public class Koava {
         return ret;
     }
 
-    public String getStockMarketKind(String code) {
+    /**
+     * <b>종목코드로 Market구분 구하기</b><br>
+     * 종목코드 입력으로 해당 종목이 어느 시장에 포함되어 있는지 구하는 기능<br>
+     * 서버와의 통신없이 메모리에 상주하는 값을 사용하므로 횟수제한 등은 없습니다.<br>
+     *
+     * @param code 종목 코드
+     * @return {@code 0}:코스피<br> {@code 10}:코스닥<br> {@code 3}:ELW<br> {@code 8}:ETF<br>
+     *          {@code 4}/{@code 14}:뮤추얼펀드<br> {@code 6}/{@code 16}:리츠<br> {@code 9}/{@code 19}:하이일드펀드<br>
+     *          {@code 30}:제3시장<br> {@code 60}:ETN
+     */
+    public String getStockMarketKindRaw(String code) {
         return koaFunctions("GetStockMarketKind", code);
+    }
+
+    /**
+     * <b>종목코드로 Market구분 구하기</b><br>
+     * 종목코드 입력으로 해당 종목이 어느 시장에 포함되어 있는지 구하는 기능<br>
+     * 서버와의 통신없이 메모리에 상주하는 값을 사용하므로 횟수제한 등은 없습니다.<br>
+     *
+     * @param code 종목 코드
+     * @return {@link MarketKind}
+     */
+    public MarketKind getStockMarketKind(String code) {
+        String data = getStockMarketKindRaw(code);
+        return MarketKind.fromCode(data);
     }
 
 
