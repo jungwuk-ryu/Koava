@@ -1,3 +1,6 @@
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)  
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fjungwuk-ryu%2FKoava&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)  
+
 # Koava
 Koava는 키움증권의 Open API를 Java에서 사용할 수 있도록 도와주는 라이브러리입니다.  
 smok95님의 [kw_](https://github.com/smok95/kw_) 프로젝트의 dll 을 기반으로 작동합니다.  
@@ -9,7 +12,8 @@ smok95님의 [kw_](https://github.com/smok95/kw_) 프로젝트의 dll 을 기반
 키움증권의 Open API가 32비트를 요구합니다. 때문에 **자바8 (32비트)** 만을 지원합니다.
 
 ## 주의 사항
-**아직 충분한 테스트가 이루어지지 않았습니다. 꼭 모의 투자 모드로 로그인 하셔서 충분한 테스트를 진행해보시기를 바랍니다.**  
+**아직 충분한 테스트가 이루어지지 않았습니다. 꼭 모의 투자 모드로 로그인 하셔서 충분한 테스트를 진행해보시기를 바랍니다.**
+**개발 초기 단계라 API 변경이 빈번합니다**
 
 ## 키움증권 Open api 사용법
 - https://github.com/me2nuk/stockOpenAPI?tab=readme-ov-file
@@ -75,15 +79,9 @@ k.waitDisconnection();
         k.addEventHandler(new MyEventHandler2(k));
 ```
 
-핸들러는 아래와 같은 모습을 가지고 있습니다.  
+핸들러는 아래와 같은 모습을 가지고 있습니다. 원하는 이벤트를 오버라이드 하시면 됩니다.
 
 ```java
-package me.jungwuk.koava.example.handlers;
-
-import me.jungwuk.koava.Koava;
-import me.jungwuk.koava.callbacks.KoaEventHandler;
-import me.jungwuk.koava.enums.RealTypes;
-
 public class MyEventHandler2 extends KoaEventHandler {
     final Koava koava;
 
@@ -101,9 +99,8 @@ public class MyEventHandler2 extends KoaEventHandler {
         if (realType.equals("주식체결")) {
             System.out.println("종목 코드 : " + realKey);
             System.out.println("데이터 : " + realData);
-
-            RealTypes.FID fid = RealTypes.주식체결.현재가;
-            System.out.println("현재가 : " + koava.getCommRealData(realKey, fid));
+            
+            System.out.println("현재가 : " + RealTypes.주식체결.현재가.get());
             // koava.getCommRealData(realKey, 10);으로도 가져올 수 있어요
         }
     }
@@ -114,6 +111,63 @@ public class MyEventHandler2 extends KoaEventHandler {
     }
 }
 ```
+
+#### 왜 여러개의 이벤트 핸들러가 필요할까요?  
+아래와 같은 장점이 있습니다.
+
+##### 상황에 따라 모듈처럼 동적으로 콜백 활성화 & 비활성화
+동적으로 핸들러를 추가하고 제거할 수 있어요.   
+```
+void 몇_분마다_실행되는_메소드() {
+    if (now == 오전) {
+        koava.addHandler(this.오전장이벤트핸들러());
+        koava.removeHandelr(this.오후장이벤트핸들러());
+    } else {
+        koava.addHandler(this.오후장이벤트핸들러());
+        koava.removeHandelr(this.오전장이벤트핸들러());    
+    }
+}
+```  
+
+만약 기존처럼 하나의 콜백만 사용 가능했다면 어땠을까요?  
+```
+koa.OnReceiveRealData(v1,v2,v3...) {
+    if (now == 오전) {
+        ...
+    } else {
+        ...
+    }    
+}
+
+koa.OnReceiveChejanData(v1,v2,v3...) {
+    if (now == 오전) {
+        ...
+    } else {
+        ...
+    }  
+}
+koa.OnReceiveRealCondition(v1,v2,v3...) {
+    if (now == 오전) {
+        ...
+    } else {
+        ...
+    }  
+}
+```  
+하나의 조건만 추가되었는데도 벌써 유지보수가 어려워졌습니다.  
+
+##### 분리된 역할  
+역할별로 코드를 따로 작성해요. 
+```
+koava.addHandler(new VI발동시_호가_감지후_매매());
+koava.addHandler(new 급등주모니터링());
+koava.addHandler(new 조건에_맞는_특정_테마주_매매());
+koava.addHandler(new 이벤트로거());
+// 등등...
+```  
+이렇게 하면 하나의 이벤트에 코드가 너무 길어지는 것도 방지할 수 있어요.  
+
+**참고** : 이벤트 핸들러는 추가된 순서대로 하나씩 실행됩니다.  
 
 ### KW_ 라이브러리 직접 사용
 Koava 초기화 후, ``getKw()`` 메소드 호출로 KwLibrary 인스턴스를 받을 수 있습니다.  
@@ -165,7 +219,7 @@ RealTypes.getFid(10).get();
 ```
 
 ---
-조금 더 편리하게 개발하실 수 있도록 메소드에 다양한 파라미터를 넣을 수 있도록 해두었습니다.  
+  
 ```java
 k.setRealReg("1000", "005930;000660", new RealTypes.FID[] {RealTypes.FID.현재가}, RealRegistOption.CLEAR);
 // 위 코드는 아래 코드들과 동일합니다.
@@ -179,8 +233,21 @@ k.setRealReg("1000", "005930;000660", "10", RealRegistOption.CLEAR);
 
 // 여러 fid를 String으로 넣는 방법
 k.setRealReg("1000", "005930;000660", "10;20", RealRegistOption.CLEAR);
-                 
+
 ```
+조금 더 편리하게 개발하실 수 있도록 메소드에 다양한 파라미터를 넣을 수 있도록 해두었습니다.  
+
+![javadoc](./imgs/javadoc.png)  
+(진행 중) Javadoc이 작성되어 있어요.
+
+```java
+if (getStockMarketKind("000000") == MarketKind.KOSPI) {
+    System.out.println("코스피");
+}
+```
+데이터를 가공해서 제공하여 개발 생산성을 높일 수 있습니다.  
+만약, 가공되지 않은 데이터를 원한다면 메소드 뒤에 "Raw"를 붙여보세요.  
+ex: ``getStockMarketKind`` -> ``getStockMarketKindRaw``
 
 ## 더 많은 예제
 [여기](./example/) 에서 확인해보세요.  
