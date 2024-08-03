@@ -443,6 +443,21 @@ public class Koava {
         return getAStringAndFree(p);
     }
 
+    /**
+     * 종목코드의 상장일을 반환
+     *
+     * @param code 종목 코드
+     * @return 상장일
+     */
+    public LocalDate getMasterListedStockDate(String code) {
+        String strDate =getMasterListedStockDateRaw(code);
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
+        return LocalDate.parse(strDate, dtf);
+    }
+
+
+
     public String getMasterLastPrice(String code) {
         Pointer p = kw.kw_GetMasterLastPriceA(code);
         return getAStringAndFree(p);
