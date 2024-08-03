@@ -343,10 +343,15 @@ public class Koava {
     }
 
 
+    /**
+     * Koava, Kw_의 초기화를 해제합니다.
+     */
     public void uninitialize() {
-        kw.kw_Uninitialize();
         initialized = false;
+        kw.kw_Uninitialize();
         eventHandlers.clear();
+        Ole32.INSTANCE.CoUninitialize();
+        Native.unregister(KwLibrary.class);
     }
 
     public void setOnEventConnect(OnEventConnectCallback handler) {
