@@ -61,6 +61,92 @@ public class KoaCode {
         return new KoaCode(code);
     }
 
+    public static String getErrorMessage(int errorCode) {
+        switch (errorCode) {
+            case OP_SUCCESS:
+                return "정상처리1";
+            case OP_ERR_NONE:
+                return "정상처리";
+            case OP_ERR_FAIL:
+                return "실패";
+            case OP_ERR_COND_NOTFOUND:
+                return "조건번호 없음";
+            case OP_ERR_COND_MISMATCH:
+                return "조건번호와 조건식 틀림";
+            case OP_ERR_COND_OVERFLOW:
+                return "조건검색 조회요청 초과";
+            case OP_ERR_LOGIN:
+                return "사용자정보 교환실패";
+            case OP_ERR_CONNECT:
+                return "서버접속 실패";
+            case OP_ERR_VERSION:
+                return "버전처리 실패";
+            case OP_ERR_FIREWALL:
+                return "개인방화벽 실패";
+            case OP_ERR_MEMORY:
+                return "메모리보호 실패";
+            case OP_ERR_INPUT:
+                return "함수입력값 오류";
+            case OP_ERR_SOCKET_CLOSED:
+                return "통신 연결종료";
+            case OP_ERR_SISE_OVERFLOW:
+                return "시세조회 과부하";
+            case OP_ERR_RQ_STRUCT_FAIL:
+                return "전문작성 초기화 실패";
+            case OP_ERR_RQ_STRING_FAIL:
+                return "전문작성 입력값 오류";
+            case OP_ERR_NO_DATA:
+                return "데이터 없음";
+            case OP_ERR_OVER_MAX_DATA:
+                return "조회 가능한 종목수 초과";
+            case OP_ERR_DATA_RCV_FAIL:
+                return "데이터수신 실패";
+            case OP_ERR_OVER_MAX_FID:
+                return "조회 가능한 FID수초과";
+            case OP_ERR_REAL_CANCEL:
+                return "실시간 해제 오류";
+            case OP_ERR_ORD_WRONG_INPUT:
+                return "입력값 오류";
+            case OP_ERR_ORD_WRONG_ACCTNO:
+                return "계좌 비밀번호 없음";
+            case OP_ERR_OTHER_ACC_USE:
+                return "타인계좌사용 오류";
+            case OP_ERR_MIS_2BILL_EXC:
+                return "주문가격이 20억원을 초과";
+            case OP_ERR_MIS_5BILL_EXC:
+                return "주문가격이 50억원을 초과";
+            case OP_ERR_MIS_1PER_EXC:
+                return "주문수량이 총발행주식 1%초과오류";
+            case OP_ERR_MIS_3PER_EXC:
+                return "주문수량이 총발행주식 3%초과오류";
+            case OP_ERR_SEND_FAIL:
+                return "주문전송 실패";
+            case OP_ERR_ORD_OVERFLOW_1:
+                return "주문전송 과부하(1)";
+            case OP_ERR_ORD_OVERFLOW_2:
+                return "주문전송 과부하(2)";
+            case OP_ERR_MIS_300CNT_EXC:
+                return "주문수량 300계약 초과";
+            case OP_ERR_MIS_500CNT_EXC:
+                return "주문수량 500계약 초과";
+            case OP_ERR_ORD_WRONG_ACCTINFO:
+                return "계좌정보없음";
+            case OP_ERR_ORD_SYMCODE_EMPTY:
+                return "종목코드없음";
+            case OP_ERR_REAL_COND_SEARCH_LIMIT_EXCEEDED:
+                return "실시간 조건검색 요청 개수 제한 초과"; // 10개
+            case OP_ERR_SECURITY_MODULE_ERROR:
+                return "보안모듈 오류";
+            case OP_ERR_CERTIFICATE_LOGIN_REQUIRED:
+                return "공인인증 로그인 필요";
+            case OP_ERR_PRICE_QUERY_LIMIT:
+                return "시세조회제한";
+
+            default:
+                return "알 수 없는 오류 코드: " + errorCode;
+        }
+    }
+
     public int getCode() {
         return this.code;
     }
@@ -95,52 +181,6 @@ public class KoaCode {
 
     public String getErrorMessage() {
         return getErrorMessage(getCode());
-    }
-
-    public static String getErrorMessage(int errorCode) {
-        switch (errorCode) {
-            case OP_SUCCESS: return "정상처리1";
-            case OP_ERR_NONE: return "정상처리";
-            case OP_ERR_FAIL: return "실패";
-            case OP_ERR_COND_NOTFOUND: return "조건번호 없음";
-            case OP_ERR_COND_MISMATCH: return "조건번호와 조건식 틀림";
-            case OP_ERR_COND_OVERFLOW: return "조건검색 조회요청 초과";
-            case OP_ERR_LOGIN: return "사용자정보 교환실패";
-            case OP_ERR_CONNECT: return "서버접속 실패";
-            case OP_ERR_VERSION: return "버전처리 실패";
-            case OP_ERR_FIREWALL: return "개인방화벽 실패";
-            case OP_ERR_MEMORY: return "메모리보호 실패";
-            case OP_ERR_INPUT: return "함수입력값 오류";
-            case OP_ERR_SOCKET_CLOSED: return "통신 연결종료";
-            case OP_ERR_SISE_OVERFLOW: return "시세조회 과부하";
-            case OP_ERR_RQ_STRUCT_FAIL: return "전문작성 초기화 실패";
-            case OP_ERR_RQ_STRING_FAIL: return "전문작성 입력값 오류";
-            case OP_ERR_NO_DATA: return "데이터 없음";
-            case OP_ERR_OVER_MAX_DATA: return "조회 가능한 종목수 초과";
-            case OP_ERR_DATA_RCV_FAIL: return "데이터수신 실패";
-            case OP_ERR_OVER_MAX_FID: return "조회 가능한 FID수초과";
-            case OP_ERR_REAL_CANCEL: return "실시간 해제 오류";
-            case OP_ERR_ORD_WRONG_INPUT: return "입력값 오류";
-            case OP_ERR_ORD_WRONG_ACCTNO: return "계좌 비밀번호 없음";
-            case OP_ERR_OTHER_ACC_USE: return "타인계좌사용 오류";
-            case OP_ERR_MIS_2BILL_EXC: return "주문가격이 20억원을 초과";
-            case OP_ERR_MIS_5BILL_EXC: return "주문가격이 50억원을 초과";
-            case OP_ERR_MIS_1PER_EXC: return "주문수량이 총발행주식 1%초과오류";
-            case OP_ERR_MIS_3PER_EXC: return "주문수량이 총발행주식 3%초과오류";
-            case OP_ERR_SEND_FAIL: return "주문전송 실패";
-            case OP_ERR_ORD_OVERFLOW_1: return "주문전송 과부하(1)";
-            case OP_ERR_ORD_OVERFLOW_2: return "주문전송 과부하(2)";
-            case OP_ERR_MIS_300CNT_EXC: return "주문수량 300계약 초과";
-            case OP_ERR_MIS_500CNT_EXC: return "주문수량 500계약 초과";
-            case OP_ERR_ORD_WRONG_ACCTINFO: return "계좌정보없음";
-            case OP_ERR_ORD_SYMCODE_EMPTY: return "종목코드없음";
-            case OP_ERR_REAL_COND_SEARCH_LIMIT_EXCEEDED: return "실시간 조건검색 요청 개수 제한 초과"; // 10개
-            case OP_ERR_SECURITY_MODULE_ERROR: return "보안모듈 오류";
-            case OP_ERR_CERTIFICATE_LOGIN_REQUIRED: return "공인인증 로그인 필요";
-            case OP_ERR_PRICE_QUERY_LIMIT: return "시세조회제한";
-
-            default: return "알 수 없는 오류 코드: " + errorCode;
-        }
     }
 
 

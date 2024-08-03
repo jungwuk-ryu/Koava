@@ -1,7 +1,5 @@
 package me.jungwuk.koava.callbacks;
 
-import me.jungwuk.koava.constants.KoaCode;
-
 abstract public class KoaEventHandler {
     public void onEventConnect(int errCode) {
 

@@ -24,14 +24,6 @@ public enum HogaType {
         this.korean = korean;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public String getKorean() {
-        return korean;
-    }
-
     public static HogaType fromCode(String code) {
         for (HogaType hogaType : HogaType.values()) {
             if (hogaType.getCode().equals(code)) {
@@ -48,6 +40,14 @@ public enum HogaType {
             }
         }
         throw new IllegalArgumentException("Unknown code: " + korean);
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getKorean() {
+        return korean;
     }
 
     @Override

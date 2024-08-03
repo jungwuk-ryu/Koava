@@ -1,13 +1,15 @@
 package me.jungwuk.koava.enums;
 
 import me.jungwuk.koava.Koava;
+
 import java.util.HashMap;
 
 @SuppressWarnings("NonAsciiCharacters")
 public class RealTypes {
     private static HashMap<Integer, FID> _cache;
 
-    private RealTypes() { }
+    private RealTypes() {
+    }
 
     public static FID getFid(int id) {
         if (_cache == null) {

@@ -42,6 +42,23 @@ public enum StockWarningType {
     }
 
     /**
+     * 제공된 코드에 해당하는 StockWarningType를 반환합니다.
+     *
+     * @param code 경고 코드
+     * @return 코드에 해당하는 StockWarningType
+     * @throws IllegalArgumentException 코드가 알려지지 않은 경우
+     */
+    public static StockWarningType fromCode(String code) {
+        for (StockWarningType status : values()) {
+            if (status.code.equals(code)) {
+                return status;
+            }
+        }
+
+        throw new IllegalArgumentException("알려지지 않은 StockWarning 코드: " + code);
+    }
+
+    /**
      * 코드를 반환합니다.
      *
      * @return 경고 코드
@@ -57,22 +74,5 @@ public enum StockWarningType {
      */
     public String getDescription() {
         return description;
-    }
-
-    /**
-     * 제공된 코드에 해당하는 StockWarningType를 반환합니다.
-     *
-     * @param code 경고 코드
-     * @return 코드에 해당하는 StockWarningType
-     * @throws IllegalArgumentException 코드가 알려지지 않은 경우
-     */
-    public static StockWarningType fromCode(String code) {
-        for (StockWarningType status : values()) {
-            if (status.code.equals(code)) {
-                return status;
-            }
-        }
-
-        throw new IllegalArgumentException("알려지지 않은 StockWarning 코드: " + code);
     }
 }

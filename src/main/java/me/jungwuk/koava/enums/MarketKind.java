@@ -52,14 +52,6 @@ public enum MarketKind {
         this.codes = codes;
     }
 
-    public String[] getCodes() {
-        return codes;
-    }
-
-    public String getKoreanName() {
-        return koreanName;
-    }
-
     public static MarketKind fromCode(String code) throws IllegalArgumentException {
         for (MarketKind kind : MarketKind.values()) {
             for (String kindCode : kind.codes) {
@@ -69,6 +61,14 @@ public enum MarketKind {
             }
         }
         throw new IllegalArgumentException("알 수 없는 코드 : " + code);
+    }
+
+    public String[] getCodes() {
+        return codes;
+    }
+
+    public String getKoreanName() {
+        return koreanName;
     }
 }
 

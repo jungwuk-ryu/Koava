@@ -41,7 +41,7 @@ public class Upjong {
 
     /**
      * 시장 타입을 반환합니다
-     * @return 시장타입(코스피,코스닥,KRX 등)
+     * @return 시장타입(코스피, 코스닥, KRX 등)
      */
     public SijangType getSijangType() {
         return sijangType;

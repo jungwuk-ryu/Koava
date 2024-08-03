@@ -1,6 +1,7 @@
 package me.jungwuk.koava;
 
-import com.sun.jna.*;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.COM.COMUtils;
 import com.sun.jna.platform.win32.Ole32;
 import com.sun.jna.platform.win32.Variant;
@@ -23,10 +24,9 @@ import java.util.StringTokenizer;
 @SuppressWarnings("FieldCanBeLocal")
 public class Koava {
     private static Koava instance;
-
+    private final ArrayList<KoaEventHandler> eventHandlers = new ArrayList<>();
     private KwLibrary kw;
     private BaseEventHandler baseEventHandler;
-    private final ArrayList<KoaEventHandler> eventHandlers = new ArrayList<>();
     private String realKey;
 
     // 콜백이 GC에 의해 죽지 않도록 하는 장치
@@ -41,7 +41,8 @@ public class Koava {
 
     private boolean initialized = false;
 
-    private Koava() { }
+    private Koava() {
+    }
 
     public static Koava getInstance() {
         if (instance == null) {
@@ -165,7 +166,6 @@ public class Koava {
 
         return new StockInfo(sijangGubun0, sijangGubun1, upjongGubun);
     }
-
 
 
     /**
