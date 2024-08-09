@@ -2,29 +2,31 @@
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fjungwuk-ryu%2FKoava&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)  
 
 # Koava
-Koava는 키움증권의 Open API를 Java에서 사용할 수 있도록 도와주는 라이브러리입니다.  
-smok95님의 [kw_](https://github.com/smok95/kw_) 프로젝트의 dll 을 기반으로 작동합니다.  
-성능과 개발 편의성 둘 다 고려하다보니 코드가 엉망인 부분이 있습니다. 개선할 수 있는 아이디어 필요합니다!
+Koava는 Java 환경에서 키움증권의 Open API를 효율적으로 활용할 수 있도록 설계된 라이브러리입니다.  
+이 라이브러리는 smok95님의 [kw_](https://github.com/smok95/kw_) 리포지토리에 기반한 DLL을 활용하여 동작하며, 개발자의 개발 편의성 개선을 목표로 하고 있습니다.  
+개선이 필요한 부분이 존재할 수 있으나, 피드백을 통해 지속적인 개선이 이루어질 예정입니다.
 
-## 실행 요구 사항
+## 요구 사항
 - ``java 8 (32bit)``  
-- ``키움증권 Open API``  
-키움증권의 Open API가 32비트를 요구합니다. 때문에 **자바8 (32비트)** 만을 지원합니다.
+- ``키움증권 Open API``    
+**참고: 키움증권의 Open API는 32비트 Java만을 지원하므로 반드시 Java 8 (32bit) 환경을 구성해야 합니다.**
 
 ## 주의 사항
-**아직 충분한 테스트가 이루어지지 않았습니다. 꼭 모의 투자 모드로 로그인 하셔서 충분한 테스트를 진행해보시기를 바랍니다.**
-**개발 초기 단계라 API 변경이 빈번합니다**
+- 현재 개발 초기 단계에 있으며, 충분한 테스트가 이루어지지 않았습니다.
+- 반드시 모의 투자 모드로 로그인하여 모든 기능을 충분히 테스트한 후 사용하시기 바랍니다.
+- API가 빈번히 변경될 수 있습니다.
+- 키움 Open API는 기본적으로 스레드를 지원하지 않습니다. 스레드를 활용하실 예정이시면, 주의해서 개발하셔야 합니다. 
 
 ## 키움증권 Open api 사용법
 - https://github.com/me2nuk/stockOpenAPI?tab=readme-ov-file
 - [kw_ 리포지토리](https://github.com/smok95/kw_)
-- https://download.kiwoom.com/web/openapi/kiwoom_openapi_plus_devguide_ver_1.5.pdf
+- [Kiwoom Open API Plus Dev Guide](https://download.kiwoom.com/web/openapi/kiwoom_openapi_plus_devguide_ver_1.5.pdf)
 
-## 사용 방법 (예시 코드)
+## 설치 및 설정
 
-### 기본 준비
-이 리포지토리를 IDE에서 열고 maven install해주세요. 
-이후, pom.xml의 의존성 목록에 아래와 같이 추가하시면 됩니다.
+### 1. Koava 설치
+이 리포지토리를 클론한 후, maven install해주세요.   
+이후, 사용하실 프로젝트의 'pom.xml'에 아래와 같이 의존성을 추가하세요.
 ```xml
         <dependency>
             <groupId>me.jungwuk.koava</groupId>
@@ -33,14 +35,12 @@ smok95님의 [kw_](https://github.com/smok95/kw_) 프로젝트의 dll 을 기반
         </dependency>
 ```
 
-### 코드 작성, Koava 사용 준비
+### 2. Koava 초기화 및 로그인
 ```java
 Koava k = Koava.getInstance();
 k.init(); // 초기화
-```
 
-### 로그인 이벤트 콜백(핸들러) 설정
-```java
+// 로그인 이벤트 콜백 설정
 k.setOnEventConnect(errCode -> {
     KoaCode code = KoaCode.fromCode(errCode);
 
@@ -52,43 +52,31 @@ k.setOnEventConnect(errCode -> {
         k.disconnect();
     }
 });
-```
 
-### 로그인 창 실행
-키움 증권 Open API를 실행하여 로그인 창을 표시합니다.
-```java
+// 로그인 창 실행
 KoaCode code = k.commConnect();
 if (code.isError()) {
     System.out.println("로그인 창을 열지 못했습니다! " + code.getErrorMessage());
     Runtime.getRuntime().exit(1);
-}
-```
+}  
 
-### 접속 종료 대기
-``k.disconnect();``가 실행될 때까지 대기합니다. 
-```java
+// 종료 대기 (k.disconnect();가 실행될 때까지 대기합니다.)
 k.waitDisconnection();
 ```
 
-## 특징
-### 이벤트 핸들러
-하나의 이벤트에 여러 콜백(핸들러)를 붙일 수 있습니다.
+## 주요 기능
+### 다중 이벤트 핸들러 지원
+Koava는 하나의 이벤트에 대해 여러 개의 핸들러를 등록할 수 있는 유연한 이벤트 처리 구조를 제공합니다. 이를 통해 다양한 시나리오에 맞는 동적인 이벤트 처리와 역할 분리가 가능합니다.
 ```java
- // 여러개의 이벤트 핸들러 등록 가능
-        k.addEventHandler(new MyEventHandler());
-        k.addEventHandler(new MyEventHandler2(k));
-```
+// 여러개의 이벤트 핸들러 등록 가능
+k.addEventHandler(new MyEventHandler()); // 급등주모니터링
+k.addEventHandler(new MyEventHandler2()); // 조건에_맞는_특정_테마주_매매
+```  
 
-핸들러는 아래와 같은 모습을 가지고 있습니다. 원하는 이벤트를 오버라이드 하시면 됩니다.
+각 핸들러는 KoaEventHandler 클래스를 상속하여 구현하며, 원하는 이벤트 메서드를 오버라이드하여 처리합니다.
 
 ```java
 public class MyEventHandler2 extends KoaEventHandler {
-    final Koava koava;
-
-    public MyEventHandler2(Koava koava) {
-        this.koava = koava;
-    }
-
     @Override
     public void onEventConnect(int errCode) {
         System.out.println("핸들러 2에서 로그인 이벤트를 받음");
@@ -112,11 +100,8 @@ public class MyEventHandler2 extends KoaEventHandler {
 }
 ```
 
-#### 왜 여러개의 이벤트 핸들러가 필요할까요?  
-아래와 같은 장점이 있습니다.
-
-##### 상황에 따라 모듈처럼 동적으로 콜백 활성화 & 비활성화
-동적으로 핸들러를 추가하고 제거할 수 있어요.   
+### 상황에 따라 모듈처럼 동적으로 콜백 활성화 & 비활성화
+동적으로 핸들러를 추가하고 제거할 수 있습니다.   
 ```
 void 몇_분마다_실행되는_메소드() {
     if (now == 오전) {
@@ -127,64 +112,20 @@ void 몇_분마다_실행되는_메소드() {
         koava.removeHandelr(this.오전장이벤트핸들러());    
     }
 }
-```  
-
-만약 기존처럼 하나의 콜백만 사용 가능했다면 어땠을까요?  
 ```
-koa.OnReceiveRealData(v1,v2,v3...) {
-    if (now == 오전) {
-        ...
-    } else {
-        ...
-    }    
-}
-
-koa.OnReceiveChejanData(v1,v2,v3...) {
-    if (now == 오전) {
-        ...
-    } else {
-        ...
-    }  
-}
-koa.OnReceiveRealCondition(v1,v2,v3...) {
-    if (now == 오전) {
-        ...
-    } else {
-        ...
-    }  
-}
-```  
-하나의 조건만 추가되었는데도 벌써 유지보수가 어려워졌습니다.  
-
-##### 분리된 역할  
-역할별로 코드를 따로 작성해요. 
-```
-koava.addHandler(new VI발동시_호가_감지후_매매());
-koava.addHandler(new 급등주모니터링());
-koava.addHandler(new 조건에_맞는_특정_테마주_매매());
-koava.addHandler(new 이벤트로거());
-// 등등...
-```  
-이렇게 하면 하나의 이벤트에 코드가 너무 길어지는 것도 방지할 수 있어요.  
 
 **참고** : 이벤트 핸들러는 추가된 순서대로 하나씩 실행됩니다.  
 
 ### KW_ 라이브러리 직접 사용
 Koava 초기화 후, ``getKw()`` 메소드 호출로 KwLibrary 인스턴스를 받을 수 있습니다.  
-이렇게 하면 더욱 직접적으로 KW_ 라이브러리와 통신하여 성능을 높일 수 있습니다.  
-
-단, 포인터를 직접 free해주셔야 합니다. 그렇지 않으면 메모리 누수가 발생할 수 있습니다.  
+이 경우 메모리 관리를 직접 해주어야 하므로 주의가 필요합니다.  
 ```java
-Koava k = Koava.getInstance();
-// 초기화
-k.init();
-
-KwLibrary lib = k.getKw();
+KwLibrary lib = koava.getKw();
 lib.kw_GetLoginInfoW(WString)
 ```
 
-### 편리한 개발
-FID는 한글로 가져올 수 있습니다.  
+### 편리한 FID 관리
+FID를 한글로 가져올 수 있습니다.  
 ![img](imgs/fid_list.png)
 ```java
 RealTypes.FID.현재가 // enum FID는 모든 FID를 가지고 있습니다.
@@ -237,24 +178,25 @@ k.setRealReg("1000", "005930;000660", "10;20", RealRegistOption.CLEAR);
 ```
 조금 더 편리하게 개발하실 수 있도록 메소드에 다양한 파라미터를 넣을 수 있도록 해두었습니다.  
 
+## Javadoc 및 추가 문서
 ![javadoc](./imgs/javadoc.png)  
-(진행 중) Javadoc이 작성되어 있어요.
+- Javadoc: 코드 내에서 제공되는 다양한 메서드와 클래스에 대한 문서화가 진행 중입니다.
 
+## 추가 예제 및 사용법
 ```java
 if (getStockMarketKind("000000") == MarketKind.KOSPI) {
     System.out.println("코스피");
 }
 ```
-데이터를 가공해서 제공하여 개발 생산성을 높일 수 있습니다.  
-만약, 가공되지 않은 데이터를 원한다면 메소드 뒤에 "Raw"를 붙여보세요.  
+Koava는 API 응답 데이터를 가공한 다음 제공합니다. 덕분에 개발 생산성을 높일 수 있습니다.    
+만약, 가공되지 않은 데이터를 원한다면 메소드 명에 "Raw"를 붙이거나 KwLibrary 인스턴스로 직접 API를 요청할 수 있습니다..  
 ex: ``getStockMarketKind`` -> ``getStockMarketKindRaw``
 
-## 더 많은 예제
-[여기](./example/) 에서 확인해보세요.  
-계속해서 추가하겠습니다.
 
-## 기여
-기여를 매우 환영합니다. 따로 규칙은 없으니 자유롭게 기여해주세요.  
+더 많은 사용 예제와 코드는 [여기](./example/)에서 확인할 수 있습니다. 앞으로도 예제는 지속적으로 추가될 예정입니다.
+
+## 기여 방법
+Koava는 오픈 소스 프로젝트로, 누구나 자유롭게 기여할 수 있습니다. 별도의 규칙은 없으니 자유롭게 Pull Request를 제출해 주세요.
 
 ## 질문
 이슈에 남겨주시면 감사하겠습니다.
