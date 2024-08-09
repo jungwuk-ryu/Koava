@@ -47,9 +47,6 @@ public class Koava {
     private OnReceiveTrConditionCallback onReceiveTrCondition;
     private OnReceiveConditionVerCallback onReceiveConditionVer;
 
-
-    List<KoavaWaiter> synchronizedList = Collections.synchronizedList(new ArrayList<>());
-
     private boolean initialized = false;
 
     private Koava() {
@@ -60,45 +57,6 @@ public class Koava {
             instance = new Koava();
         }
         return instance;
-    }
-
-    private Object waitEvent(KoavaWaiter waiter) {
-        synchronizedList.add(waiter);
-        Object data = waiter.getData();
-
-        synchronizedList.remove(waiter);
-        return data;
-    }
-
-    public EventConnectData waitEvent(EventConnectWaiter eventConnectWaiter) {
-        return (EventConnectData) this.waitEvent((KoavaWaiter) eventConnectWaiter);
-    }
-
-    public ChejanData waitEvent(ChejanDataWaiter chejanDataWaiter) {
-        return (ChejanData) this.waitEvent((KoavaWaiter) chejanDataWaiter);
-    }
-    public ConditionVerData waitEvent(ConditionVerWaiter conditionVerWaiter) {
-        return (ConditionVerData) this.waitEvent((KoavaWaiter) conditionVerWaiter);
-    }
-
-    public MsgData waitEvent(MsgWaiter msgWaiter) {
-        return (MsgData) this.waitEvent((KoavaWaiter) msgWaiter);
-    }
-
-    public RealData waitEvent(RealConditionWaiter realConditionWaiter) {
-        return (RealData) this.waitEvent((KoavaWaiter) realConditionWaiter);
-    }
-
-    public TrConditionData waitEvent(TrConditionWaiter trConditionWaiter) {
-        return (TrConditionData) this.waitEvent((KoavaWaiter) trConditionWaiter);
-    }
-
-    public TrData waitEvent(TrDataWaiter trDataWaiter) {
-        return (TrData) this.waitEvent((KoavaWaiter) trDataWaiter);
-    }
-
-    public RealData waitEvent(RealDataWaiter realDataWaiter) {
-        return (RealData) this.waitEvent((KoavaWaiter) realDataWaiter);
     }
 
     /**
@@ -1594,9 +1552,9 @@ public class Koava {
     }
 
     private void putDataToWaiters(Class targetWaiter, EventData data) {
-        if (!synchronizedList.isEmpty()) {
-            synchronized (synchronizedList) {
-                for (KoavaWaiter koavaWaiter : synchronizedList) {
+        if (!KoavaWaiter.waiterList.isEmpty()) {
+            synchronized (KoavaWaiter.waiterList) {
+                for (KoavaWaiter koavaWaiter : KoavaWaiter.waiterList) {
                     if (!(koavaWaiter.getClass().equals(targetWaiter))) continue;
 
                     if (koavaWaiter.checkFilter(data)) {

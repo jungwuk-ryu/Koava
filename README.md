@@ -121,13 +121,14 @@ Waiter를 이용하면 순차적인 로직을 아래처럼 쉽게 구현할 수 
 ``로그인 -> 삼성전자 현재가 10만원까지 기다리기 -> 삼성전자 매수``  
 ```java
         /**
-         * 로그인 대기
-         */
+        * 로그인 대기
+        */
         EventConnectWaiter loginWaiter = new EventConnectWaiter();
-        EventConnectData loginData = koava.waitEvent(loginWaiter);
+        loginWaiter.waitEvent(); // 로그인 대기
+        KoaCode result = loginWaiter.getData().errCode;
 
-        System.out.println("로그인 성공 여부 : " + (loginData.errCode.isError() ? "실패" : "성공"));
-        if (loginData.errCode.isError()) return;
+        System.out.println("로그인 성공 여부 : " + (result.isError() ? "실패" : "성공"));
+        if (result.isError()) return;
 
         /**
          * 특정 가격 체결 기다리기
@@ -135,13 +136,13 @@ Waiter를 이용하면 순차적인 로직을 아래처럼 쉽게 구현할 수 
         koava.setInputValue("종목코드",  "005930");
         koava.commRqData( "RQName", "OPT10003",0,  "1000");
 
-        // 현재가 fid 필요
+        // 필요한 FID 목록
         RealTypes.FID[] fidArr = new RealTypes.FID[]{RealTypes.FID.현재가};
         // 10만원 이상일 때
         WaiterFilter<RealData> filter = realData -> Integer.parseInt(RealTypes.FID.현재가.get()) >= 100000;
 
         RealDataWaiter rdWaiter = new RealDataWaiter(fidArr, filter);
-        koava.waitEvent(rdWaiter); // 10만원 이상일 때까지 기다림
+        rdWaiter.waitEvent(); // 10만원 이상일 때까지 기다림
 
         String currentPrice = rdWaiter.getFidData(RealTypes.FID.현재가); // 이럴땐 getFidData를 사용해서 받아와야합니다.
         System.out.println("현재가 : " + currentPrice);
