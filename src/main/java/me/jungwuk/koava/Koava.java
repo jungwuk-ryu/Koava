@@ -1070,6 +1070,35 @@ public class Koava {
     }
 
     /**
+     *  신용주식 주문을 서버로 전송한다.<br>
+     * 신용매수 주문<br>
+     * - 신용구분값 “03”, 대출일은 “공백”<br><br>
+     * 신용매도 융자상환 주문<br>
+     * - 신용구분값 “33”, 대출일은 종목별 대출일 입력<br>
+     * - OPW00005/OPW00004 TR조회로 대출일 조회<br><br>
+     * 신용매도 융자합 주문시<br>
+     * - 신용구분값 “99”, 대출일은 “99991231”<br>
+     * - 단 신용잔고 5개까지만 융자합 주문가능<br><br>
+     * 나머지 입력값은 {@link Koava#sendOrder(String, String, String, int, String, int, int, HogaType, String)}함수 설명참고
+     *
+     * @param rqName 사용자 구분 요청 명
+     * @param screenNo 화면번호[4]
+     * @param accNo 계좌번호[10]
+     * @param orderType 주문 유형
+     * @param code 주식 종목 코드
+     * @param qty 주문 수량
+     * @param price 주문 단가
+     * @param hogaGb 거래 구분
+     * @param creditGb 신용구분 (신용매수:03, 신용매도 융자상환:33,신용매도 융자합:99)
+     * @param loanDate 대출일
+     * @param orgOrderNo 원주문번호
+     * @return 에러코드
+     */
+    public KoaCode sendOrderCredit(String rqName, String screenNo, String accNo, OrderType orderType, String code, int qty, int price, HogaType hogaGb, String creditGb, String loanDate, String orgOrderNo) {
+        return sendOrderCredit(rqName, screenNo, accNo, orderType.getCode(), code, qty, price, hogaGb, creditGb, loanDate, orgOrderNo);
+    }
+
+    /**
      * OpenAPI기본 기능외에 기능을 사용하기 쉽도록 도와주는 함수.<br>
      * 특수 함수를 실행시킬 수 있다.
      *
@@ -1356,6 +1385,26 @@ public class Koava {
      */
     public KoaCode sendOrder(String rqName, String screenNo, String accNo, int orderType, String code, int qty, int price, HogaType hogaGb, String orgOrderNo) {
         return new KoaCode(kw.kw_SendOrderA(rqName, screenNo, accNo, orderType, code, qty, price, hogaGb.getCode(), orgOrderNo));
+    }
+
+    /**
+     * 주식 주문을 서버로 전송<br>
+     * ※ 시장가, 최유리지정가, 최우선지정가, 시장가IOC, 최유리IOC, 시장가FOK, 최유리FOK, 장전시간외, 장후시간외 주문시 주문가격을 입력하지 않습니다. <br>
+     * 예시 : {@code sendOrder(“RQ_1”, “0101”, “5015123410”, 1, “000660”, 10, 0, hogaGb, “”);}
+     *
+     * @param rqName 사용자 구분 요청 명 (나중에 데이터 받았을 때 구분하기 위함)
+     * @param screenNo 4자리 화면 번호
+     * @param accNo 10자리 계좌 번호
+     * @param orderType 주문 유형
+     * @param code 주식 종목 코드
+     * @param qty 주문 수량
+     * @param price 주문 단가
+     * @param hogaGb 거래 구분
+     * @param orgOrderNo 원 주문 번호
+     * @return 결과 코드
+     */
+    public KoaCode sendOrder(String rqName, String screenNo, String accNo, OrderType orderType, String code, int qty, int price, HogaType hogaGb, String orgOrderNo) {
+        return sendOrder(rqName, screenNo, accNo, orderType.getCode(), code, qty, price, hogaGb, orgOrderNo);
     }
 
     public KoaCode sendOrderFO(String rqName, String screenNo, String accNo, String code, int ordKind, String slbyTp, String ordTp, int qty, String price, String orgOrdNo) {
