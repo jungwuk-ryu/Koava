@@ -5,6 +5,7 @@ import me.jungwuk.koava.models.event.TrConditionData;
 
 public class TrConditionWaiter extends KoavaWaiter<TrConditionData> {
     public TrConditionWaiter() {
+        super();
     }
 
     public TrConditionWaiter(WaiterFilter<TrConditionData> filter) {

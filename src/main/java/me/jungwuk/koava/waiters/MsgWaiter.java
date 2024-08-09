@@ -5,6 +5,7 @@ import me.jungwuk.koava.models.event.MsgData;
 
 public class MsgWaiter extends KoavaWaiter<MsgData> {
     public MsgWaiter() {
+        super();
     }
 
     public MsgWaiter(WaiterFilter<MsgData> filter) {

@@ -5,6 +5,7 @@ import me.jungwuk.koava.models.event.EventConnectData;
 
 public class EventConnectWaiter extends KoavaWaiter<EventConnectData> {
     public EventConnectWaiter() {
+        super();
     }
 
     public EventConnectWaiter(WaiterFilter<EventConnectData> filter) {

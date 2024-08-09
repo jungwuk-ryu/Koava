@@ -5,6 +5,7 @@ import me.jungwuk.koava.models.event.ChejanData;
 
 public class ChejanDataWaiter extends KoavaWaiter<ChejanData> {
     public ChejanDataWaiter() {
+        super();
     }
 
     public ChejanDataWaiter(WaiterFilter<ChejanData> filter) {

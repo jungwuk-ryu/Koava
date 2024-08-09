@@ -5,6 +5,7 @@ import me.jungwuk.koava.models.event.ConditionVerData;
 
 public class ConditionVerWaiter extends KoavaWaiter<ConditionVerData> {
     public ConditionVerWaiter() {
+        super();
     }
 
     public ConditionVerWaiter(WaiterFilter<ConditionVerData> filter) {

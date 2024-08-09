@@ -5,6 +5,7 @@ import me.jungwuk.koava.models.event.TrData;
 
 public class TrDataWaiter extends KoavaWaiter<TrData> {
     public TrDataWaiter() {
+        super();
     }
 
     public TrDataWaiter(WaiterFilter<TrData> filter) {
