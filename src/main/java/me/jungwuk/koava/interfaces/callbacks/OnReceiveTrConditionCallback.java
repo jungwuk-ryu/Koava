@@ -1,4 +1,4 @@
-package me.jungwuk.koava.callbacks;
+package me.jungwuk.koava.interfaces.callbacks;
 
 import com.sun.jna.Callback;
 
@@ -9,7 +9,7 @@ public interface OnReceiveTrConditionCallback extends Callback {
     /**
      * 조건검색 조회응답으로 종목리스트를 구분자(“;”)로 붙여서 받는 콜백
      *
-     * @param scrNo 종목 코드
+     * @param scrNo 화면 번호
      * @param codeList 종목리스트(";"로 구분)
      * @param conditionName 조건명
      * @param index 조건명 인덱스

@@ -1,4 +1,4 @@
-package me.jungwuk.koava.callbacks;
+package me.jungwuk.koava.interfaces.callbacks;
 
 import com.sun.jna.Callback;
 

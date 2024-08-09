@@ -41,14 +41,14 @@ Koava k = Koava.getInstance();
 k.init(); // 초기화
 
 // 로그인 이벤트 콜백 설정
-k.setOnEventConnect(errCode -> {
-    KoaCode code = KoaCode.fromCode(errCode);
+k.setOnEventConnect(data -> {
+    KoaCode code = data.errCode;
 
     if (!code.isError()) {
         System.out.println("로그인 성공");
     } else {
         System.out.println("오류 발생 : " + code.getErrorMessage());
-        System.out.println(errCode);
+        System.out.println(code);
         k.disconnect();
     }
 });
@@ -78,15 +78,15 @@ k.addEventHandler(new MyEventHandler2()); // 조건에_맞는_특정_테마주_�
 ```java
 public class MyEventHandler2 extends KoaEventHandler {
     @Override
-    public void onEventConnect(int errCode) {
+    public void onEventConnect(Koava koava) {
         System.out.println("핸들러 2에서 로그인 이벤트를 받음");
     }
 
     @Override
-    public void onReceiveRealData(String realKey, String realType, String realData) {
-        if (realType.equals("주식체결")) {
-            System.out.println("종목 코드 : " + realKey);
-            System.out.println("데이터 : " + realData);
+    public void onReceiveRealData(RealData data) {
+        if (data.realType.equals("주식체결")) {
+            System.out.println("종목 코드 : " + data.realKey);
+            System.out.println("데이터 : " + data.realData);
             
             System.out.println("현재가 : " + RealTypes.주식체결.현재가.get());
             // koava.getCommRealData(realKey, 10);으로도 가져올 수 있어요
@@ -94,8 +94,8 @@ public class MyEventHandler2 extends KoaEventHandler {
     }
 
     @Override
-    public void onReceiveMsg(String scrNo, String rqName, String trCode, String msg) {
-        System.out.println("받은 메시지 : " + msg);
+    public void onReceiveMsg(MsgData data) {
+        System.out.println("받은 메시지 : " + data.msg);
     }
 }
 ```
@@ -114,14 +114,56 @@ void 몇_분마다_실행되는_메소드() {
 }
 ```
 
-**참고** : 이벤트 핸들러는 추가된 순서대로 하나씩 실행됩니다.  
+**참고** : 이벤트 핸들러는 추가된 순서대로 하나씩 실행됩니다.
+
+### Waiter  
+Waiter를 이용하면 순차적인 로직을 아래처럼 쉽게 구현할 수 있습니다.  
+
+```java
+        /**
+         * 로그인 대기
+         */
+        EventConnectWaiter loginWaiter = new EventConnectWaiter();
+        EventConnectData loginData = koava.waitEvent(loginWaiter);
+
+        System.out.println("로그인 성공 여부 : " + (loginData.errCode.isError() ? "실패" : "성공"));
+        if (loginData.errCode.isError()) return;
+
+        /**
+         * 특정 가격 체결 기다리기
+         */
+        koava.setInputValue("종목코드",  "005930");
+        koava.commRqData( "RQName", "OPT10003",0,  "1000");
+
+        // 현재가 fid 필요
+        RealTypes.FID[] fidArr = new RealTypes.FID[]{RealTypes.FID.현재가};
+        // 10만원 이상일 때
+        WaiterFilter<RealData> filter = realData -> Integer.parseInt(RealTypes.FID.현재가.get()) >= 100000;
+
+        RealDataWaiter rdWaiter = new RealDataWaiter(fidArr, filter);
+        koava.waitEvent(rdWaiter); // 10만원 이상일 때까지 기다림
+
+        String currentPrice = rdWaiter.getFidData(RealTypes.FID.현재가); // 이럴땐 getFidData를 사용해서 받아와야합니다.
+        System.out.println("현재가 : " + currentPrice);
+
+        /**
+         * 신규 매수
+         */
+        String accNo = koava.getAccountNoList().get(0); // 계좌번호
+        // 신규 매수, 10주, 시장가
+        koava.sendOrder("order", "1000", accNo, OrderType.NEW_BUY, "005930", 10, 0, HogaType.MARKET, "");
+```  
+
+#### **⚠️주의**  
+실시간 데이터에서 FID의 값을 가져올 때는 ``RealDataWaiter``생성시 필요한 FID 목록(배열)을 넣고, 데이터가 필요한 때에 ``RealDataWaiter.getFidData()``를 사용하여 데이터를 얻어야합니다.  
+키움증권 API의 ``getCommRealData``는 ``OnReceiveRealData`` 안에서 실행되어야하지만, Waiter를 사용하면 그렇게 할 수 없습니다. 때문에 Koava는 OnReceiveRealData 안에서 미리 요청된 FID에 해당하는 데이터를 받아옵니다.  
 
 ### KW_ 라이브러리 직접 사용
 Koava 초기화 후, ``getKw()`` 메소드 호출로 KwLibrary 인스턴스를 받을 수 있습니다.  
 이 경우 메모리 관리를 직접 해주어야 하므로 주의가 필요합니다.  
 ```java
 KwLibrary lib = koava.getKw();
-lib.kw_GetLoginInfoW(WString)
+lib.kw_GetLoginInfoW(WString);
 ```
 
 ### 편리한 FID 관리
@@ -182,7 +224,7 @@ k.setRealReg("1000", "005930;000660", "10;20", RealRegistOption.CLEAR);
 ![javadoc](./imgs/javadoc.png)  
 - Javadoc: 코드 내에서 제공되는 다양한 메서드와 클래스에 대한 문서화가 진행 중입니다.
 
-## 추가 예제 및 사용법
+## 추가적인 사용법
 ```java
 if (getStockMarketKind("000000") == MarketKind.KOSPI) {
     System.out.println("코스피");
@@ -191,6 +233,8 @@ if (getStockMarketKind("000000") == MarketKind.KOSPI) {
 Koava는 API 응답 데이터를 가공한 다음 제공합니다. 덕분에 개발 생산성을 높일 수 있습니다.    
 만약, 가공되지 않은 데이터를 원한다면 메소드 명에 "Raw"를 붙이거나 KwLibrary 인스턴스로 직접 API를 요청할 수 있습니다..  
 ex: ``getStockMarketKind`` -> ``getStockMarketKindRaw``
+
+## 추가 예제
 
 
 더 많은 사용 예제와 코드는 [여기](./example/)에서 확인할 수 있습니다. 앞으로도 예제는 지속적으로 추가될 예정입니다.

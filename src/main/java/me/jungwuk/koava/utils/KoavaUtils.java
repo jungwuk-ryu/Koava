@@ -31,6 +31,14 @@ public class KoavaUtils {
         return fidIterableToStrList(Arrays.asList(fidArray));
     }
 
+    public static RealTypes.FID[] intArrayToFidArray(int[] intArray) {
+        RealTypes.FID[] fidArray = new RealTypes.FID[intArray.length];
+        for (int i = 0; i < intArray.length; i++) {
+            fidArray[i] = RealTypes.getFid(intArray[i]);
+        }
+        return fidArray;
+    }
+
     /**
      * Open API가 문자열 리스트를 "a;b;c;d;e;"처럼 ";"으로 구분하여 반환했을 때
      * 이를 자바의 리스트로 변환해주는 메소드입니다. <br>

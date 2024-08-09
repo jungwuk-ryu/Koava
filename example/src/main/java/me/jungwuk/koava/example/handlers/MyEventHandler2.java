@@ -1,8 +1,11 @@
 package me.jungwuk.koava.example.handlers;
 
 import me.jungwuk.koava.Koava;
-import me.jungwuk.koava.callbacks.KoaEventHandler;
+import me.jungwuk.koava.handlers.KoaEventHandler;
 import me.jungwuk.koava.enums.RealTypes;
+import me.jungwuk.koava.models.event.EventConnectData;
+import me.jungwuk.koava.models.event.MsgData;
+import me.jungwuk.koava.models.event.RealData;
 
 public class MyEventHandler2 extends KoaEventHandler {
     final Koava koava;
@@ -12,15 +15,15 @@ public class MyEventHandler2 extends KoaEventHandler {
     }
 
     @Override
-    public void onEventConnect(int errCode) {
+    public void onEventConnect(EventConnectData data) {
         System.out.println("핸들러 2에서 로그인 이벤트를 받음");
     }
 
     @Override
-    public void onReceiveRealData(String realKey, String realType, String realData) {
-        if (realType.equals("주식체결")) {
-            System.out.println("종목 코드 : " + realKey);
-            System.out.println("데이터 : " + realData);
+    public void onReceiveRealData(RealData data) {
+        if (data.realType.equals("주식체결")) {
+            System.out.println("종목 코드 : " + data.realKey);
+            System.out.println("데이터 : " + data.realData);
 
             String currentPrice = RealTypes.주식체결.현재가.get();
             /*RealTypes.FID fid = RealTypes.주식체결.현재가;
@@ -30,7 +33,7 @@ public class MyEventHandler2 extends KoaEventHandler {
     }
 
     @Override
-    public void onReceiveMsg(String scrNo, String rqName, String trCode, String msg) {
-        System.out.println("받은 메시지 : " + msg);
+    public void onReceiveMsg(MsgData data) {
+        System.out.println("받은 메시지 : " + data.msg);
     }
 }

@@ -15,8 +15,8 @@ public class Main {
         k.init();
 
         // 로그인 이벤트 핸들러
-        k.setOnEventConnect(errCode -> {
-            KoaCode code = KoaCode.fromCode(errCode);
+        k.setOnEventConnect(data -> {
+            KoaCode code = data.errCode;
 
             if (!code.isError()) {
                 System.out.println("로그인 성공");
@@ -39,7 +39,7 @@ public class Main {
                  */
             } else {
                 System.out.println("오류 발생 : " + code.getErrorMessage());
-                System.out.println(errCode);
+                System.out.println(code);
                 k.disconnect();
             }
         });

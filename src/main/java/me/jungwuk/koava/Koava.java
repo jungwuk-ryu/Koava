@@ -2,24 +2,32 @@ package me.jungwuk.koava;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import com.sun.jna.platform.win32.*;
 import com.sun.jna.platform.win32.COM.COMUtils;
-import me.jungwuk.koava.callbacks.*;
+import com.sun.jna.platform.win32.Ole32;
+import com.sun.jna.platform.win32.Variant;
+import com.sun.jna.platform.win32.WinNT;
 import me.jungwuk.koava.constants.KoaCode;
 import me.jungwuk.koava.enums.*;
 import me.jungwuk.koava.exceptions.COMInitializationException;
 import me.jungwuk.koava.exceptions.IllegalKoaResult;
+import me.jungwuk.koava.handlers.*;
 import me.jungwuk.koava.interfaces.KwLibrary;
+import me.jungwuk.koava.interfaces.callbacks.*;
 import me.jungwuk.koava.models.BasisAssetCodeAndStockName;
 import me.jungwuk.koava.models.CondIdxAndName;
 import me.jungwuk.koava.models.StockInfo;
 import me.jungwuk.koava.models.Upjong;
+import me.jungwuk.koava.models.event.*;
 import me.jungwuk.koava.utils.KoavaUtils;
-import com.sun.jna.platform.win32.Variant;
+import me.jungwuk.koava.waiters.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringTokenizer;
+
 
 @SuppressWarnings({"FieldCanBeLocal", "UnusedReturnValue"})
 public class Koava {
@@ -39,6 +47,9 @@ public class Koava {
     private OnReceiveTrConditionCallback onReceiveTrCondition;
     private OnReceiveConditionVerCallback onReceiveConditionVer;
 
+
+    List<KoavaWaiter> synchronizedList = Collections.synchronizedList(new ArrayList<>());
+
     private boolean initialized = false;
 
     private Koava() {
@@ -49,6 +60,45 @@ public class Koava {
             instance = new Koava();
         }
         return instance;
+    }
+
+    private Object waitEvent(KoavaWaiter waiter) {
+        synchronizedList.add(waiter);
+        Object data = waiter.getData();
+
+        synchronizedList.remove(waiter);
+        return data;
+    }
+
+    public EventConnectData waitEvent(EventConnectWaiter eventConnectWaiter) {
+        return (EventConnectData) this.waitEvent((KoavaWaiter) eventConnectWaiter);
+    }
+
+    public ChejanData waitEvent(ChejanDataWaiter chejanDataWaiter) {
+        return (ChejanData) this.waitEvent((KoavaWaiter) chejanDataWaiter);
+    }
+    public ConditionVerData waitEvent(ConditionVerWaiter conditionVerWaiter) {
+        return (ConditionVerData) this.waitEvent((KoavaWaiter) conditionVerWaiter);
+    }
+
+    public MsgData waitEvent(MsgWaiter msgWaiter) {
+        return (MsgData) this.waitEvent((KoavaWaiter) msgWaiter);
+    }
+
+    public RealData waitEvent(RealConditionWaiter realConditionWaiter) {
+        return (RealData) this.waitEvent((KoavaWaiter) realConditionWaiter);
+    }
+
+    public TrConditionData waitEvent(TrConditionWaiter trConditionWaiter) {
+        return (TrConditionData) this.waitEvent((KoavaWaiter) trConditionWaiter);
+    }
+
+    public TrData waitEvent(TrDataWaiter trDataWaiter) {
+        return (TrData) this.waitEvent((KoavaWaiter) trDataWaiter);
+    }
+
+    public RealData waitEvent(RealDataWaiter realDataWaiter) {
+        return (RealData) this.waitEvent((KoavaWaiter) realDataWaiter);
     }
 
     /**
@@ -375,81 +425,81 @@ public class Koava {
     }
 
     /**
-     * 서버 접속 관련 이벤트 콜백 지정 <br>
+     * 서버 접속 관련 이벤트 핸들러 지정 <br>
      * 참고 : {@link OnEventConnectCallback#invoke(int)}
      * @param callback 콜백
      */
-    public void setOnEventConnect(OnEventConnectCallback callback) {
+    public void setOnEventConnect(OnEventConnectHandler callback) {
         baseEventHandler.onEventConnect = callback;
     }
 
     /**
-     * 서버통신 후 데이터를 받은 시점을 알 수 있는 콜백 지정 <br>
+     * 서버통신 후 데이터를 받은 시점을 알 수 있는 핸들러 지정 <br>
      * 참고 : {@link OnReceiveTrDataCallback#invoke(String, String, String, String, String, int, String, String, String)}
      *
      * @param callback 콜백
      */
-    public void setOnReceiveTrData(OnReceiveTrDataCallback callback) {
+    public void setOnReceiveTrData(OnReceiveTrDataHandler callback) {
         baseEventHandler.onReceiveTrData = callback;
     }
 
     /**
-     * 실시간 데이터를 받으면 호출되는 콜백 지정<br>
+     * 실시간 데이터를 받으면 호출되는 핸들러 지정<br>
      * 참고 : {@link OnReceiveRealDataCallback#invoke(String, String, String)}
      *
      * @param callback 콜백
      */
-    public void setOnReceiveRealData(OnReceiveRealDataCallback callback) {
+    public void setOnReceiveRealData(OnReceiveRealDataHandler callback) {
         baseEventHandler.onReceiveRealData = callback;
     }
 
     /**
-     * 서버통신 후 메시지를 받으면 실행되는 콜백 지정<br>
+     * 서버통신 후 메시지를 받으면 실행되는 핸들러 지정<br>
      * 참고 : {@link OnReceiveMsgCallback#invoke(String, String, String, String)}
      * 
      * @param callback 콜백
      */
-    public void setOnReceiveMsg(OnReceiveMsgCallback callback) {
+    public void setOnReceiveMsg(OnReceiveMsgHandler callback) {
         baseEventHandler.onReceiveMsg = callback;
     }
 
     /**
-     * 체결데이터를 받으면 실행되는 콜백 지정<br>
+     * 체결데이터를 받으면 실행되는 핸들러 지정<br>
      * 참고 : {@link OnReceiveChejanDataCallback#invoke(String, int, String)}
      *
      * @param callback 콜백
      */
-    public void setOnReceiveChejanData(OnReceiveChejanDataCallback callback) {
+    public void setOnReceiveChejanData(OnReceiveChejanDataHandler callback) {
         baseEventHandler.onReceiveChejanData = callback;
     }
 
     /**
-     * 조건검색 실시간 편입, 이탈 종목을 받을시 실행되는 콜백 지정<br>
+     * 조건검색 실시간 편입, 이탈 종목을 받을시 실행되는 핸들러 지정<br>
      * 참고 : {@link OnReceiveRealConditionCallback#invoke(String, String, String, String)}
      *
      * @param callback 콜백
      */
-    public void setOnReceiveRealCondition(OnReceiveRealConditionCallback callback) {
+    public void setOnReceiveRealCondition(OnReceiveRealConditionHandler callback) {
         baseEventHandler.onReceiveRealCondition = callback;
     }
 
     /**
-     * 조건검색 조회응답으로 종목리스트를 구분자(“;”)로 붙여서 받는 콜백 지정<br>
+     * 조건검색 조회응답으로 종목리스트를 구분자(“;”)로 붙여서 받는 핸들러 지정<br>
      * 참고 : {@link OnReceiveTrConditionCallback#invoke(String, String, String, int, int)}
      *
      * @param callback 콜백
      */
-    public void setOnReceiveTrCondition(OnReceiveTrConditionCallback callback) {
+    public void setOnReceiveTrCondition(OnReceiveTrConditionHandler callback) {
         baseEventHandler.onReceiveTrCondition = callback;
     }
 
     /**
-     * 로컬에 사용자 조건식 저장 성공 여부를 확인하는 콜백 지정 <br>
+     * 로컬에 사용자 조건식 저장 성공 여부를 확인하는 핸들러 지정 <br>
      * 참고 : {@link OnReceiveConditionVerCallback#invoke(int, String)}
      *
      * @param callback 콜백
      */
-    public void setOnReceiveConditionVer(OnReceiveConditionVerCallback callback) {
+    public void setOnReceiveConditionVer(OnReceiveConditionVerHandler callback) {
         baseEventHandler.onReceiveConditionVer = callback;
     }
 
@@ -1543,16 +1593,33 @@ public class Koava {
         return ret;
     }
 
+    private void putDataToWaiters(Class targetWaiter, EventData data) {
+        if (!synchronizedList.isEmpty()) {
+            synchronized (synchronizedList) {
+                for (KoavaWaiter koavaWaiter : synchronizedList) {
+                    if (!(koavaWaiter.getClass().equals(targetWaiter))) continue;
+
+                    if (koavaWaiter.checkFilter(data)) {
+                        koavaWaiter.setData(data);
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * 모든 이벤트 핸들러 및 setOn... 메소드들의 콜백들에게 이벤트를 넘겨줄 콜백을 설정합니다.<br>
      * 이에 대해 더 좋은 아이디어를 이슈에 남겨주시면 정말 감사하겠습니다...<br>
      * 변수에 콜백을 저장하는 이유는, GC에 의해 콜백이 제거되는 것을 방지하기 위함입니다.
      */
     private void initEventHandler() {
-        onEventConnect = (OnEventConnectCallback) errCode -> {
+        onEventConnect = errCode -> {
+            EventConnectData data = new EventConnectData(errCode);
+            putDataToWaiters(EventConnectWaiter.class, data);
+
             for (KoaEventHandler handler : eventHandlers) {
                 try {
-                    handler.onEventConnect(errCode);
+                    handler.onEventConnect(data);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     e.printStackTrace();
@@ -1560,10 +1627,13 @@ public class Koava {
             }
         };
 
-        onReceiveTrData = (OnReceiveTrDataCallback) (scrNo, rqName, trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg) -> {
+        onReceiveTrData = (scrNo, rqName, trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg) -> {
+            TrData data = new TrData(scrNo, rqName, trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg);
+            putDataToWaiters(TrDataWaiter.class, data);
+
             for (KoaEventHandler handler : eventHandlers) {
                 try {
-                    handler.onReceiveTrData(scrNo, rqName, trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg);
+                    handler.onReceiveTrData(data);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     e.printStackTrace();
@@ -1571,12 +1641,14 @@ public class Koava {
             }
         };
 
-        onReceiveRealData = (OnReceiveRealDataCallback) (realKey, realType, realData) -> {
+        onReceiveRealData = (realKey, realType, realData) -> {
             this.realKey = realKey;
+            RealData data = new RealData(realKey, realType, realData);
+            putDataToWaiters(RealDataWaiter.class, data);
 
             for (KoaEventHandler handler : eventHandlers) {
                 try {
-                    handler.onReceiveRealData(realKey, realType, realData);
+                    handler.onReceiveRealData(data);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     e.printStackTrace();
@@ -1585,9 +1657,12 @@ public class Koava {
         };
 
         onReceiveMsg = (OnReceiveMsgCallback) (scrNo, rqName, trCode, msg) -> {
+            MsgData data = new MsgData(scrNo, rqName, trCode, msg);
+            putDataToWaiters(MsgWaiter.class, data);
+
             for (KoaEventHandler handler : eventHandlers) {
                 try {
-                    handler.onReceiveMsg(scrNo, rqName, trCode, msg);
+                    handler.onReceiveMsg(data);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     e.printStackTrace();
@@ -1596,9 +1671,12 @@ public class Koava {
         };
 
         onReceiveChejanData = (OnReceiveChejanDataCallback) (gubun, itemCnt, fIdList) -> {
+            ChejanData data = new ChejanData(gubun, itemCnt, fIdList);
+            putDataToWaiters(ChejanDataWaiter.class, data);
+
             for (KoaEventHandler handler : eventHandlers) {
                 try {
-                    handler.onReceiveChejanData(gubun, itemCnt, fIdList);
+                    handler.onReceiveChejanData(data);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     e.printStackTrace();
@@ -1607,9 +1685,12 @@ public class Koava {
         };
 
         onReceiveRealCondition = (OnReceiveRealConditionCallback) (trCode, type, conditionName, conditionIndex) -> {
+            RealConditionData data = new RealConditionData(trCode, type, conditionName, conditionIndex);
+            putDataToWaiters(RealConditionWaiter.class, data);
+
             for (KoaEventHandler handler : eventHandlers) {
                 try {
-                    handler.onReceiveRealCondition(trCode, type, conditionName, conditionIndex);
+                    handler.onReceiveRealCondition(data);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     e.printStackTrace();
@@ -1618,9 +1699,12 @@ public class Koava {
         };
 
         onReceiveTrCondition = (OnReceiveTrConditionCallback) (scrNo, codeList, conditionName, index, next) -> {
+            TrConditionData data = new TrConditionData(scrNo, codeList, conditionName, index, next);
+            putDataToWaiters(TrConditionWaiter.class, data);
+
             for (KoaEventHandler handler : eventHandlers) {
                 try {
-                    handler.onReceiveTrCondition(scrNo, codeList, conditionName, index, next);
+                    handler.onReceiveTrCondition(data);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     e.printStackTrace();
@@ -1629,9 +1713,12 @@ public class Koava {
         };
 
         onReceiveConditionVer = (OnReceiveConditionVerCallback) (ret, msg) -> {
+            ConditionVerData data = new ConditionVerData(ret, msg);
+            putDataToWaiters(ConditionVerWaiter.class, data);
+
             for (KoaEventHandler handler : eventHandlers) {
                 try {
-                    handler.onReceiveConditionVer(ret, msg);
+                    handler.onReceiveConditionVer(data);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     e.printStackTrace();
@@ -1655,54 +1742,60 @@ public class Koava {
  * setOn... 메소드들을 통해 설정된 콜백은 이 이벤트 핸들러가 실행합니다.
  */
 class BaseEventHandler extends KoaEventHandler {
-    OnEventConnectCallback onEventConnect;
-    OnReceiveTrDataCallback onReceiveTrData;
-    OnReceiveRealDataCallback onReceiveRealData;
-    OnReceiveMsgCallback onReceiveMsg;
-    OnReceiveChejanDataCallback onReceiveChejanData;
-    OnReceiveRealConditionCallback onReceiveRealCondition;
-    OnReceiveTrConditionCallback onReceiveTrCondition;
-    OnReceiveConditionVerCallback onReceiveConditionVer;
+    OnEventConnectHandler onEventConnect;
+    OnReceiveTrDataHandler onReceiveTrData;
+    OnReceiveRealDataHandler onReceiveRealData;
+    OnReceiveMsgHandler onReceiveMsg;
+    OnReceiveChejanDataHandler onReceiveChejanData;
+    OnReceiveRealConditionHandler onReceiveRealCondition;
+    OnReceiveTrConditionHandler onReceiveTrCondition;
+    OnReceiveConditionVerHandler onReceiveConditionVer;
 
-    public void onEventConnect(int errCode) {
+    @Override
+    public void onEventConnect(EventConnectData data) {
         if (onEventConnect == null) return;
-        onEventConnect.invoke(errCode);
+        onEventConnect.handle(data);
     }
 
-    public void onReceiveChejanData(String gubun, int itemCnt, String fIdList) {
+    @Override
+    public void onReceiveChejanData(ChejanData data) {
         if (onReceiveChejanData == null) return;
-        onReceiveChejanData.invoke(gubun, itemCnt, fIdList);
+        onReceiveChejanData.handle(data);
     }
 
-    public void onReceiveConditionVer(int ret, String msg) {
+    @Override
+    public void onReceiveConditionVer(ConditionVerData data) {
         if (onReceiveConditionVer == null) return;
-        onReceiveConditionVer.invoke(ret, msg);
+        onReceiveConditionVer.handle(data);
     }
 
-    public void onReceiveMsg(String scrNo, String rqName, String trCode, String msg) {
+    @Override
+    public void onReceiveMsg(MsgData data) {
         if (onReceiveMsg == null) return;
-        onReceiveMsg.invoke(scrNo, rqName, trCode, msg);
+        onReceiveMsg.handle(data);
     }
 
-    public void onReceiveRealCondition(String trCode, String type, String conditionName, String conditionIndex) {
+    @Override
+    public void onReceiveRealCondition(RealConditionData data) {
         if (onReceiveRealCondition == null) return;
-        onReceiveRealCondition.invoke(trCode, type, conditionName, conditionIndex);
+        onReceiveRealCondition.handle(data);
     }
 
-    public void onReceiveRealData(String realKey, String realType, String realData) {
+    @Override
+    public void onReceiveRealData(RealData data) {
         if (onReceiveRealData == null) return;
-        onReceiveRealData.invoke(realKey, realType, realData);
+        onReceiveRealData.handle(data);
     }
 
-    public void onReceiveTrCondition(String scrNo, String codeList, String conditionName, int index, int next) {
+    @Override
+    public void onReceiveTrCondition(TrConditionData data) {
         if (onReceiveTrCondition == null) return;
-        onReceiveTrCondition.invoke(scrNo, codeList, conditionName, index, next);
+        onReceiveTrCondition.handle(data);
     }
 
-    public void onReceiveTrData(String scrNo, String rqName, String trCode,
-                                String recordName, String prevNext, int dataLength,
-                                String errorCode, String message, String splmMsg) {
+    @Override
+    public void onReceiveTrData(TrData data) {
         if (onReceiveTrData == null) return;
-        onReceiveTrData.invoke(scrNo, rqName, trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg);
+        onReceiveTrData.handle(data);
     }
 }
